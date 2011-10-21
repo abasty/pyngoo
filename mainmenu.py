@@ -13,7 +13,6 @@ selected = -1
 def init():
     fontSize = 100
     font = pygame.font.Font(None, fontSize)
-#    menu = [ "Play", "Quit", "lkjhedlkzjehdklj", "mlkjhmkljmlk", "lkjmlkjmlkjmljlm" ]
     maxWidth = 0
     for item in menu:
         renderedText.append(font.render(item, True, [0, 0, 0]))
