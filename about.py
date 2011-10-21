@@ -13,6 +13,8 @@ def init():
 def event(event):
     if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
         return "Menu"
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        return "Menu"
 
 # Draw callback
 def draw():
