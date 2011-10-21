@@ -41,6 +41,6 @@ while not done:
  
 # Be IDLE friendly
 print "Ending game..."
-pygame.quit ()
+pygame.quit()
 print "The End."
 
