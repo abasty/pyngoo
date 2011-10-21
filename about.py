@@ -2,7 +2,7 @@
 import pygame
 import game
 
-title = "Play"
+title = "About"
 font = pygame.font.Font(None, 50) 
 
 # Initialization
