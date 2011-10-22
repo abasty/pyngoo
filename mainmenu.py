@@ -15,7 +15,7 @@ def init():
     font = pygame.font.Font(None, fontSize)
     maxWidth = 0
     for item in menu:
-        renderedText.append(font.render(item, True, [0, 0, 0]))
+        renderedText.append(font.render(item, True, game.white))
         extents = font.size(item)
         if extents[0] > maxWidth:
             maxWidth = extents[0]
