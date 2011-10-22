@@ -26,6 +26,9 @@ def init():
         zones.append(pygame.Rect(X, Y, maxWidth, fontSize))
         Y += fontSize
 
+def enter():
+    pass
+
 # Event callback
 def event(event):
     if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:

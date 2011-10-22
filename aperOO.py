@@ -11,7 +11,23 @@ import about
 
 done = False
 clock = pygame.time.Clock()
-screen = mainmenu
+screen = 0
+
+def enterScreen(s):
+    global screen
+    # screen.exit()
+    screen = s
+    screen.enter()
+    
+def handleScreenEvent(event):
+    global screen
+    return screen.event(event)
+
+def drawScreen():
+    global screen
+    screen.draw()
+    
+enterScreen(mainmenu)
 
 while not done:
 
@@ -20,20 +36,23 @@ while not done:
         if event.type == pygame.QUIT:
             done = True 
         else:
-            trans = screen.event(event)
+            trans = handleScreenEvent(event)
             if trans == "Quit":
                 done = True;
             elif trans == "Play":
-                screen = play
+                enterScreen(play)
             elif trans == "Menu":
-                screen = mainmenu
+                enterScreen(mainmenu)
             elif trans == "Setup":
-                screen = setup
+                enterScreen(setup)
             elif trans == "About":
-                screen = about
+                enterScreen(about)
+                
+    if done:
+        break
 
     # Draw current screen	
-    screen.draw()
+    drawScreen()
 
     # Manage frame and frame rate
     pygame.display.flip()

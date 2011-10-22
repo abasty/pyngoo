@@ -3,10 +3,18 @@ import pygame
 import game
 
 title = "Play"
-font = pygame.font.Font(None, 50) 
+font = pygame.font.Font(None, 50)
+
+blocks = pygame.sprite.Group()
+
+class block(pygame.sprite.Sprite):
+    pass 
 
 # Initialization
 def init():
+    pass
+
+def enter():
     pass
 
 # Event callback

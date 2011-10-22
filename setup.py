@@ -9,6 +9,9 @@ font = pygame.font.Font(None, 50)
 def init():
     pass
 
+def enter():
+    pass
+
 # Event callback
 def event(event):
     if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
