@@ -13,6 +13,6 @@ pi = 3.141592653
 size = [ 800, 600 ]
 
 #screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
-screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+screen = pygame.display.set_mode(size)
 pygame.display.set_caption("PyGame Example - Alain Basty")
 
