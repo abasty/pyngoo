@@ -6,6 +6,7 @@ import game
 
 title = "Play"
 font = pygame.font.Font(None, 50)
+glacon = pygame.image.load("media/glacon.jpg")
 tableau = []
 
 spriteSize = 42
@@ -47,7 +48,7 @@ def event(event):
 
 # Draw callback
 def draw():
-    game.screen.fill(game.white)
+    game.screen.fill(0xb4b4d9)
     game.screen.blit(font.render(title, True, [0, 0, 0]), [0, 0])
 
     for l in range(len(tableau)):
@@ -55,7 +56,9 @@ def draw():
         for c in range(len(ligne)):
             item = ligne[c]
             if item == "x":
-                pygame.draw.rect(game.screen, 0, pygame.Rect(c * spriteSize + 20 + 90, l * spriteSize, spriteSize, spriteSize), 4)
+                game.screen.blit(glacon, [c * spriteSize + 20 + 90, l * spriteSize ])
+            elif item == ".":
+                pygame.draw.rect(game.screen, 0xffffff, pygame.Rect(c * spriteSize + 20 + 90, l * spriteSize, spriteSize, spriteSize))
             elif item == "b":
                 pygame.draw.rect(game.screen, game.gray, pygame.Rect(c * spriteSize + 20 + 90, l * spriteSize, spriteSize, spriteSize))
 
