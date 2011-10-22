@@ -30,7 +30,6 @@ def drawScreen():
 enterScreen(mainmenu)
 
 while not done:
-
     # Dispatch event to current screen and handle QUIT event
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -51,7 +50,7 @@ while not done:
     if done:
         break
 
-    # Draw current screen	
+    # Draw current screen    
     drawScreen()
 
     # Manage frame and frame rate

@@ -12,7 +12,7 @@ pi = 3.141592653
 # Set the height and width of the game.screen
 size = [ 800, 600 ]
 
-#game.screen = pygame.display.set_mode(size, pygame.FULLgame.screen)
-screen = pygame.display.set_mode(size)
-pygame.display.set_caption("PyGame Exemple - Alain Basty")
+#screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+pygame.display.set_caption("PyGame Example - Alain Basty")
 
