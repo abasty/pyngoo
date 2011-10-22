@@ -7,7 +7,10 @@ import game
 title = "Play"
 font = pygame.font.Font(None, 50)
 tableau = []
-spriteSize = 30
+
+spriteSize = 42
+lmax = 12
+cmax = 14
 
 # Initialization
 def init():
@@ -17,17 +20,23 @@ def enter():
     # Labyrinth
     global tableau
     tableau = []
-    for l in range(10):
-        ligne0 = []
-        ligne1 = []
-        for c in range(12):
+    ligne0 = [ "b" for i in range(cmax + 2) ]
+    tableau.append(ligne0)
+    for l in range(lmax / 2):
+        ligne0 = [ "b" ]
+        ligne1 = [ "b" ]
+        for c in range(cmax / 2):
             r = random.choice(["xx..", "xx..", "x.x.", "x.x.", "x..."])
             ligne0.append(r[0])
             ligne0.append(r[1])
             ligne1.append(r[2])
             ligne1.append(r[3])
+        ligne0.append("b")
+        ligne1.append("b")
         tableau.append(ligne0)
         tableau.append(ligne1)
+    ligne0 = [ "b" for i in range(cmax + 2) ]
+    tableau.append(ligne0)
 
 # Event callback
 def event(event):
@@ -38,7 +47,7 @@ def event(event):
 
 # Draw callback
 def draw():
-    game.screen.fill([255, 0, 255])
+    game.screen.fill(game.white)
     game.screen.blit(font.render(title, True, [0, 0, 0]), [0, 0])
 
     for l in range(len(tableau)):
@@ -46,6 +55,8 @@ def draw():
         for c in range(len(ligne)):
             item = ligne[c]
             if item == "x":
-                pygame.draw.rect(game.screen, 0, pygame.Rect(c * spriteSize + 20 + 90, l * spriteSize, spriteSize, spriteSize))
+                pygame.draw.rect(game.screen, 0, pygame.Rect(c * spriteSize + 20 + 90, l * spriteSize, spriteSize, spriteSize), 4)
+            elif item == "b":
+                pygame.draw.rect(game.screen, game.gray, pygame.Rect(c * spriteSize + 20 + 90, l * spriteSize, spriteSize, spriteSize))
 
 init()

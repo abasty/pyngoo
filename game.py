@@ -6,9 +6,10 @@ white = [255,255,255]
 blue =  [  0,  0,255]
 green = [  0,255,  0]
 red =   [255,  0,  0]
- 
+gray =  [127, 127, 127]
+
 pi = 3.141592653
- 
+
 # Set the height and width of the game.screen
 size = [ 800, 600 ]
 

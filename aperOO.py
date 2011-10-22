@@ -26,8 +26,8 @@ def handleScreenEvent(event):
 def drawScreen():
     global screen
     screen.draw()
-    
-enterScreen(mainmenu)
+
+enterScreen(play)
 
 while not done:
     # Dispatch event to current screen and handle QUIT event
