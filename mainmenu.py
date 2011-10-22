@@ -31,9 +31,12 @@ def enter():
 
 # Event callback
 def event(event):
-    if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-        return "Quit"
-    
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE:
+            return "Quit"
+        elif event.key == pygame.K_RETURN or event.key == pygame.K_p:
+            return "Play"
+
     if event.type == pygame.MOUSEBUTTONDOWN:
         for i in range(len(zones)):
             if zones[i].collidepoint(event.pos):
