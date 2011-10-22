@@ -7,6 +7,8 @@ import game
 title = "Play"
 font = pygame.font.Font(None, 50)
 glacon = pygame.image.load("media/glacon.jpg")
+bord = pygame.image.load("media/igloo.jpg")
+neige = pygame.image.load("media/neige.jpg")
 tableau = []
 
 spriteSize = 42
@@ -58,8 +60,10 @@ def draw():
             if item == "x":
                 game.screen.blit(glacon, [c * spriteSize + 20 + 90, l * spriteSize ])
             elif item == ".":
+                #game.screen.blit(neige, [c * spriteSize + 20 + 90, l * spriteSize ])
                 pygame.draw.rect(game.screen, 0xffffff, pygame.Rect(c * spriteSize + 20 + 90, l * spriteSize, spriteSize, spriteSize))
             elif item == "b":
-                pygame.draw.rect(game.screen, game.gray, pygame.Rect(c * spriteSize + 20 + 90, l * spriteSize, spriteSize, spriteSize))
+                game.screen.blit(bord, [c * spriteSize + 20 + 90, l * spriteSize ])
+                #pygame.draw.rect(game.screen, game.gray, pygame.Rect(c * spriteSize + 20 + 90, l * spriteSize, spriteSize, spriteSize))
 
 init()
