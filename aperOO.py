@@ -56,7 +56,7 @@ while not done:
 
     # Manage frame and frame rate
     pygame.display.flip()
-    clock.tick(20)
+    clock.tick(60)
 
 # Be IDLE friendly
 print "Ending game..."
