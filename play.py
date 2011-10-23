@@ -47,6 +47,9 @@ def enter():
     ligne0 = [ "b" for _ in range(cmax) ]
     tableau.append(ligne0)
 
+def leave():
+    pass
+
 # Event callback
 def event(event):
     if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:

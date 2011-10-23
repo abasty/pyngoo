@@ -15,10 +15,11 @@ screen = 0
 
 def enterScreen(s):
     global screen
-    # screen.exit()
+    if screen != 0:
+        screen.leave()
     screen = s
     screen.enter()
-    
+
 def handleScreenEvent(event):
     global screen
     return screen.event(event)

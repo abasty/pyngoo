@@ -12,6 +12,9 @@ def init():
 def enter():
     pass
 
+def leave():
+    pass
+
 # Event callback
 def event(event):
     if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
