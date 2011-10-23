@@ -61,13 +61,17 @@ def event(event):
 def draw():
     game.screen.blit(back, [0, 0])
 
+    y = lorigin
     for l in range(len(tableau)):
         ligne = tableau[l]
+        x = corigin
         for c in range(len(ligne)):
             item = ligne[c]
             if item == "x":
-                game.screen.blit(glacon, [c * spriteSize + corigin, l * spriteSize + lorigin ])
+                game.screen.blit(glacon, [ x, y ])
             elif item == "b":
-                game.screen.blit(bord, [c * spriteSize + corigin, l * spriteSize + lorigin ])
+                game.screen.blit(bord, [ x, y ])
+            x += spriteSize
+        y += spriteSize
 
 init()
