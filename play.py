@@ -4,20 +4,25 @@ import random
 import pygame
 import game
 
-title = "Play"
-font = pygame.font.Font(None, 50)
+#font = pygame.font.Font(None, 50)
+
 back = pygame.image.load("media/playbackground.png").convert()
 glacon = pygame.image.load("media/glacon.png").convert()
 glacon.set_colorkey(glacon.get_at((0,0)), pygame.RLEACCEL)
 bord = pygame.image.load("media/igloo.jpg").convert()
 neige = pygame.image.load("media/neige.jpg").convert()
-tableau = []
+tux = pygame.image.load("media/tux.png").convert_alpha()
 
 spriteSize = 40
 lmax = 13
 cmax = 19
 lorigin = 60
 corigin = 20
+
+player = game.Object()
+player.x = int(cmax / 2)
+player.y = int(lmax / 2)
+player.picture = tux
 
 # Initialization
 def init():
@@ -46,6 +51,7 @@ def enter():
         tableau.append(ligne1)
     ligne0 = [ "b" for _ in range(cmax) ]
     tableau.append(ligne0)
+    tableau[ player.y ] [ player.x ] = "."
 
 def leave():
     pass
@@ -61,6 +67,7 @@ def event(event):
 def draw():
     game.screen.blit(back, [0, 0])
 
+    # draw board
     y = lorigin
     for l in range(len(tableau)):
         ligne = tableau[l]
@@ -73,5 +80,8 @@ def draw():
                 game.screen.blit(bord, [ x, y ])
             x += spriteSize
         y += spriteSize
+        
+    # draw player
+    game.screen.blit(player.picture, [ player.x * spriteSize + corigin, player.y *spriteSize + lorigin])
 
 init()
