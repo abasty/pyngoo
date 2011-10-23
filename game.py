@@ -17,5 +17,7 @@ size = [ 800, 600 ]
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("PyGame Example - Alain Basty")
 
+TICK = pygame.USEREVENT
+
 class Object:
     pass

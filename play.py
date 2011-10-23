@@ -53,15 +53,40 @@ def enter():
     tableau.append(ligne0)
     tableau[ player.y ] [ player.x ] = "."
 
+    pygame.time.set_timer(game.TICK, 100)
+
 def leave():
-    pass
+    pygame.time.set_timer(game.TICK, 0)
+
+def move_player(dx, dy):
+    collision = tableau[player.y + dy][player.x + dx]
+    if collision == ".":
+        player.x += dx
+        player.y += dy
+
+def tick():
+    kb = pygame.key.get_pressed()
+    if kb[pygame.K_UP]:
+        move_player(0, -1)
+    elif kb[pygame.K_DOWN]:
+        move_player(0, +1)
+    elif kb[pygame.K_LEFT]:
+        move_player(-1, 0)
+    elif kb[pygame.K_RIGHT]:
+        move_player(+1, 0)
 
 # Event callback
 def event(event):
-    if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-        return "Menu"
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE:
+            return "Menu"
+        return
+
     if event.type == pygame.MOUSEBUTTONDOWN:
         return "Menu"
+
+    if event.type == game.TICK:
+        tick()
 
 # Draw callback
 def draw():

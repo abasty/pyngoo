@@ -3,7 +3,7 @@
 import pygame
 pygame.init()
 
-#import game
+import game
 import mainmenu
 import play
 import setup
@@ -56,8 +56,8 @@ while not done:
 
     # Manage frame and frame rate
     pygame.display.flip()
-    clock.tick(10)
- 
+    clock.tick(20)
+
 # Be IDLE friendly
 print "Ending game..."
 pygame.quit()
