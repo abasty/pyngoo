@@ -13,9 +13,11 @@ bord = pygame.image.load("media/igloo.jpg").convert()
 neige = pygame.image.load("media/neige.jpg").convert()
 tableau = []
 
-spriteSize = 42
-lmax = 12
-cmax = 14
+spriteSize = 40
+lmax = 13
+cmax = 19
+lorigin = 60
+corigin = 20
 
 # Initialization
 def init():
@@ -25,22 +27,24 @@ def enter():
     # Labyrinth
     global tableau
     tableau = []
-    ligne0 = [ "b" for _ in range(cmax + 2) ]
+    ligne0 = [ "b" for _ in range(cmax) ]
     tableau.append(ligne0)
-    for _ in range(lmax / 2):
+    for l in range(lmax / 2):
         ligne0 = [ "b" ]
         ligne1 = [ "b" ]
-        for _ in range(cmax / 2):
+        for c in range(cmax / 2):
             r = random.choice(["xx..", "xx..", "x.x.", "x.x.", "x..."])
-            ligne0.append(r[0])
+            if c > 0:
+                ligne0.append(r[0])
+                ligne1.append(r[2])
             ligne0.append(r[1])
-            ligne1.append(r[2])
             ligne1.append(r[3])
         ligne0.append("b")
         ligne1.append("b")
-        tableau.append(ligne0)
+        if l > 0:
+            tableau.append(ligne0)
         tableau.append(ligne1)
-    ligne0 = [ "b" for _ in range(cmax + 2) ]
+    ligne0 = [ "b" for _ in range(cmax) ]
     tableau.append(ligne0)
 
 # Event callback
@@ -52,22 +56,15 @@ def event(event):
 
 # Draw callback
 def draw():
-#    game.screen.fill(0xb4b4d9)
     game.screen.blit(back, [0, 0])
-    game.screen.blit(font.render(title, True, [0, 0, 0]), [0, 0])
 
     for l in range(len(tableau)):
         ligne = tableau[l]
         for c in range(len(ligne)):
             item = ligne[c]
             if item == "x":
-                game.screen.blit(glacon, [c * spriteSize + 20 + 90, l * spriteSize ])
-            elif item == ".":
-                #game.screen.blit(neige, [c * spriteSize + 20 + 90, l * spriteSize ])
-                #pygame.draw.rect(game.screen, 0x808080, pygame.Rect(c * spriteSize + 20 + 90, l * spriteSize, spriteSize, spriteSize))
-                pass
+                game.screen.blit(glacon, [c * spriteSize + corigin, l * spriteSize + lorigin ])
             elif item == "b":
-                game.screen.blit(bord, [c * spriteSize + 20 + 90, l * spriteSize ])
-                #pygame.draw.rect(game.screen, game.gray, pygame.Rect(c * spriteSize + 20 + 90, l * spriteSize, spriteSize, spriteSize))
+                game.screen.blit(bord, [c * spriteSize + corigin, l * spriteSize + lorigin ])
 
 init()
