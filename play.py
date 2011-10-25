@@ -46,7 +46,7 @@ def enter():
     # Labyrinth
     global tableau
     tableau = []
-    ligne0 = [ "b" for _ in range(cmax) ]
+    ligne0 = [ "b" ] * cmax
     tableau.append(ligne0)
     for l in range(lmax / 2):
         ligne0 = [ "b" ]
@@ -63,7 +63,7 @@ def enter():
         if l > 0:
             tableau.append(ligne0)
         tableau.append(ligne1)
-    ligne0 = [ "b" for _ in range(cmax) ]
+    ligne0 = [ "b" ] * cmax
     tableau.append(ligne0)
     tableau[player.lig][player.col] = "."
 
