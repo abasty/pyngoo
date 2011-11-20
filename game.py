@@ -24,6 +24,8 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption("PyGame Example - Alain Basty")
 
 MOTIONTICK = pygame.USEREVENT
+COLORKEY_AUTO = -1
+ALPHA = -2
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('media', name)
@@ -32,11 +34,15 @@ def load_image(name, colorkey=None):
     except pygame.error, message:
         print 'Cannot load image:', name
         raise SystemExit, message
-    image = image.convert()
-    if colorkey is not None:
-        if colorkey is -1:
-            colorkey = image.get_at((0,0))
-        image.set_colorkey(colorkey, RLEACCEL)
+    if colorkey is ALPHA:
+        image = image.convert_alpha()
+    else:
+        image = image.convert()
+        if colorkey is not None:
+            if colorkey is COLORKEY_AUTO:
+                colorkey = image.get_at((0, 0))
+            image.set_colorkey(colorkey, RLEACCEL)
+
     return image, image.get_rect()
 
 class Object:
