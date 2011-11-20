@@ -41,6 +41,7 @@ def enter():
     player.dcol = 0
     player.x = player.col * blocksize + corigin
     player.y = player.lig * blocksize + lorigin
+    player.key = -1
     player.picture = tux
 
     # Labyrinth
@@ -73,22 +74,47 @@ def leave():
     pygame.time.set_timer(game.MOTIONTICK, 0)
     pass
 
-def begin_move(dcol, dlig):
-    collision = tableau[player.lig + dlig][player.col + dcol]
-    if collision == ".":
-        player.dcol = dcol
-        player.dlig = dlig
-        player.dx = dcol * movesize
-        player.dy = dlig * movesize
+def define_move(key):
+    player.key = key
 
-def end_move():
+def undefine_move_if_equal(key):
+    pass
+#    if player.key == key:
+#        player.key = -1
+
+def begin_move():
+    # end move
     player.col += player.dcol
     player.lig += player.dlig
     player.dcol = 0
     player.dlig = 0
     player.dx = 0
     player.dy = 0
+
+    if player.key == pygame.K_UP:
+        dcol = 0
+        dlig = -1
+    elif player.key == pygame.K_DOWN:
+        dcol = 0
+        dlig = 1
+    elif player.key == pygame.K_LEFT:
+        dcol = -1
+        dlig = 0
+    elif player.key == pygame.K_RIGHT:
+        dcol = 1
+        dlig = 0
+    else:
+        dcol = 0
+        dlig = 0
+
+    collision = tableau[player.lig + dlig][player.col + dcol]
     
+    if collision == ".":
+        player.dcol = dcol
+        player.dlig = dlig
+        player.dx = dcol * movesize
+        player.dy = dlig * movesize
+
 def move():
     player.x += player.dx
     player.y += player.dy
@@ -96,31 +122,24 @@ def move():
 def motiontick():
     global ticknumber
     if ticknumber == 0:
-        end_move()
-        kb = pygame.key.get_pressed()
-        if kb[pygame.K_UP]:
-            begin_move(0, -1)
-        elif kb[pygame.K_DOWN]:
-            begin_move(0, +1)
-        elif kb[pygame.K_LEFT]:
-            begin_move(-1, 0)
-        elif kb[pygame.K_RIGHT]:
-            begin_move(+1, 0)
-        else:
-            begin_move(0, 0)
+        begin_move()
     move()
-        
+
     ticknumber = (ticknumber + 1) % moveframes
-    
+
 # Event callback
 def event(event):
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_ESCAPE:
             return "Menu"
+        elif event.key == pygame.K_UP or event.key == pygame.K_DOWN or event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+            # try w/ sets (event.key in (...)
+            define_move(event.key)
         return
-
-    if event.type == pygame.MOUSEBUTTONDOWN:
-        return "Menu"
+    
+#    if event.type == pygame.KEYUP:
+#        undefine_move_if_equal(event.key)
+ #       return
 
     if event.type == game.MOTIONTICK:
         motiontick()
