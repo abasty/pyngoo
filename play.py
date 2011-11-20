@@ -2,9 +2,27 @@
 
 import random
 import pygame
-from game import Object, MOTIONTICK, screen
-from block import Border, Block
+from game import Object, MOTIONTICK, screen, load_image, xorigin, yorigin
 
+class Block(pygame.sprite.Sprite):
+
+    def __init__(self, l, c):
+        pygame.sprite.Sprite.__init__(self)
+        self.image, self.rect = load_image('glacon.png', -1)
+        self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
+    
+    def update(self):
+        pass
+    
+class Border(pygame.sprite.Sprite):
+
+    def __init__(self, l, c):
+        pygame.sprite.Sprite.__init__(self)
+        self.image, self.rect = load_image('igloo.jpg')
+        self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
+    
+    def update(self):
+        pass
 #font = pygame.font.Font(None, 50)
 
 back = pygame.image.load("media/playbackground.png").convert()
