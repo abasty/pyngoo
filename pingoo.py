@@ -3,7 +3,6 @@
 import pygame
 pygame.init()
 
-import game
 import mainmenu
 import play
 import setup
@@ -31,6 +30,8 @@ def drawScreen():
 enterScreen(play)
 
 while not done:
+    clock.tick(60)
+
     # Dispatch event to current screen and handle QUIT event
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -56,7 +57,6 @@ while not done:
 
     # Manage frame and frame rate
     pygame.display.flip()
-    clock.tick(60)
 
 # Be IDLE friendly
 print "Ending game..."
