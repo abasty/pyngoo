@@ -107,7 +107,7 @@ def event(event):
     
 #    if event.type == pygame.KEYUP:
 #        undefine_move_if_equal(event.key)
- #       return
+#       return
 
     if event.type == MOTIONTICK:
         motiontick()
