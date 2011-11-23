@@ -2,18 +2,37 @@
 
 import random
 import pygame
-from game import MOTIONTICK, screen, load_image, xorigin, yorigin, ALPHA, COLORKEY_AUTO
+from game import screen, load_image, xorigin, yorigin, ALPHA, COLORKEY_AUTO
 
-class Block(pygame.sprite.Sprite):
+nextT = 0
+deltaT = 20
+
+class PhysicsObject:
+
+    def __init__(self):
+        # position
+        self.x = 0.0
+        self.y = 0.0
+        # speed in pixels/ms
+        self.vx = 0.0
+        self.vy = 0.0
+        
+    def doPhysics(self):
+        self.x += self.vx
+        self.y += self.vy
+        self.rect.left = self.x
+
+class Block(pygame.sprite.Sprite, PhysicsObject):
 
     def __init__(self, l, c):
         pygame.sprite.Sprite.__init__(self)
+        PhysicsObject.__init__(self)
         self.image, self.rect = load_image('glacon.png', COLORKEY_AUTO)
         self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
-    
+
     def update(self):
         pass
-    
+
 class Border(pygame.sprite.Sprite):
 
     def __init__(self, l, c):
@@ -24,15 +43,19 @@ class Border(pygame.sprite.Sprite):
     def update(self):
         pass
 
-class Pingoo(pygame.sprite.Sprite):
+class Pingoo(pygame.sprite.Sprite, PhysicsObject):
 
     def __init__(self, l, c):
         pygame.sprite.Sprite.__init__(self)
+        PhysicsObject.__init__(self)
+        self.vx = 2.5
         self.image, self.rect = load_image('tux.png', ALPHA)
         self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
-    
+        self.key = 0
+
     def update(self):
-        pass
+        self.doPhysics()
+
 
 #font = pygame.font.Font(None, 50)
 
@@ -54,10 +77,8 @@ def init():
     pass
 
 def enter():
-    
-    global labyrinth
+    global labyrinth, player, pingoo
     labyrinth = pygame.sprite.RenderPlain()
-    global player, pingoo
     pingoo = Pingoo(lmax / 2, cmax / 2)
     player = pygame.sprite.RenderPlain(pingoo)
 
@@ -83,7 +104,8 @@ def enter():
     ligne0 = [ "b" ] * cmax
     tableau.append(ligne0)
     tableau[lmax / 2][cmax / 2] = "."
-    
+
+    #define sprites
     for l in range(lmax):
         for c in range(cmax):
             p = tableau[l][c]
@@ -91,23 +113,15 @@ def enter():
                 labyrinth.add(Border(l, c))
             if p is "x":
                 labyrinth.add(Block(l, c))
-    
-    pygame.time.set_timer(MOTIONTICK, motionticktime)
+
+    global nextT, deltaT
+    nextT = pygame.time.get_ticks() + deltaT
 
 def leave():
     global labyrinth, player, pingoo
     labyrinth.empty()
     player.empty()
     del pingoo
-    pygame.time.set_timer(MOTIONTICK, 0)
-
-def define_move(key):
-    player.key = key
-
-def undefine_move_if_equal(key):
-    pass
-#    if player.key == key:
-#        player.key = -1
 
 def begin_move():
     pass
@@ -115,39 +129,30 @@ def begin_move():
 def move():
     pass
 
-def motiontick():
-    global ticknumber
-    if ticknumber == 0:
-        begin_move()
-    move()
-
-    ticknumber = (ticknumber + 1) % moveframes
-
 # Event callback
 def event(event):
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_ESCAPE:
             return "Menu"
-        elif event.key == pygame.K_UP or event.key == pygame.K_DOWN or event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-            # try w/ sets (event.key in (...)
-            define_move(event.key)
+        elif event.key in (pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT):
+            pingoo.key = event.key
         return
-    
+
 #    if event.type == pygame.KEYUP:
 #        undefine_move_if_equal(event.key)
 #       return
 
-    if event.type == MOTIONTICK:
-        motiontick()
 
 # Draw callback
 def draw():
+    global nextT, deltaT
+    t = pygame.time.get_ticks()
+    while t >= nextT:
+        player.update()
+        labyrinth.update()
+        nextT += deltaT
     screen.blit(back, [0, 0])
-
-    # draw board
     labyrinth.draw(screen)
     player.draw(screen)
-    # draw player
-#    game.screen.blit(player.picture, [ player.x, player.y ])
 
 init()

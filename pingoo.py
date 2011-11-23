@@ -9,7 +9,7 @@ import setup
 import about
 
 done = False
-clock = pygame.time.Clock()
+
 screen = 0
 
 def enterScreen(s):
@@ -30,7 +30,7 @@ def drawScreen():
 enterScreen(play)
 
 while not done:
-    clock.tick(60)
+    pygame.time.wait(2)
 
     # Dispatch event to current screen and handle QUIT event
     for event in pygame.event.get():
