@@ -4,6 +4,11 @@ import random
 import pygame
 from game import screen, load_image, xorigin, yorigin, ALPHA, COLORKEY_AUTO
 
+back = pygame.image.load("media/playbackground.png").convert()
+
+lmax = 13
+cmax = 19
+
 nextT = 0
 deltaT = 20
 
@@ -59,11 +64,6 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
     def update(self):
         self.doPhysics()
 
-
-back = pygame.image.load("media/playbackground.png").convert()
-
-lmax = 13
-cmax = 19
 
 # Initialization
 def init():
