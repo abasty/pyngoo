@@ -7,16 +7,19 @@ from game import screen, load_image, xorigin, yorigin, ALPHA, COLORKEY_AUTO
 nextT = 0
 deltaT = 20
 
+def pixelsBySecondToSpeedUnit(pxBysec):
+    return pxBysec * deltaT / 1000.0
+
 class PhysicsObject:
 
-    def __init__(self):
+    def __init__(self, vx = 0.0, vy = 0.0):
         # position
-        self.x = 0.0
-        self.y = 0.0
+        self.x = self.rect.left
+        self.y = self.rect.left
         # speed in pixels/ms
-        self.vx = 0.0
-        self.vy = 0.0
-        
+        self.vx = vx
+        self.vy = vy
+
     def doPhysics(self):
         self.x += self.vx
         self.y += self.vy
@@ -26,9 +29,9 @@ class Block(pygame.sprite.Sprite, PhysicsObject):
 
     def __init__(self, l, c):
         pygame.sprite.Sprite.__init__(self)
-        PhysicsObject.__init__(self)
         self.image, self.rect = load_image('glacon.png', COLORKEY_AUTO)
         self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
+        PhysicsObject.__init__(self)
 
     def update(self):
         pass
@@ -47,27 +50,17 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
 
     def __init__(self, l, c):
         pygame.sprite.Sprite.__init__(self)
-        PhysicsObject.__init__(self)
-        self.vx = 2.5
         self.image, self.rect = load_image('tux.png', ALPHA)
         self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
+        PhysicsObject.__init__(self, pixelsBySecondToSpeedUnit(100.0), 0.0)
+        print self.vx
         self.key = 0
 
     def update(self):
         self.doPhysics()
 
 
-#font = pygame.font.Font(None, 50)
-
 back = pygame.image.load("media/playbackground.png").convert()
-#tux = pygame.image.load("media/tux.png").convert_alpha()
-
-# Move should be computed on time (see clock) because tick is not stable
-blocksize = 40
-moveframes = 8
-movesize = int(blocksize / moveframes)
-motionticktime = int(100 / moveframes)
-ticknumber = 0
 
 lmax = 13
 cmax = 19
