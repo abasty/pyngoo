@@ -20,8 +20,10 @@ class PhysicsObject:
     def __init__(self, vx = 0.0, vy = 0.0):
         # position
         self.x = self.rect.left
-        self.y = self.rect.left
-        # speed in pixels/ms
+        self.y = self.rect.top
+        self.setSpeed(vx, vy)
+
+    def setSpeed(self, vx, vy):
         self.vx = vx
         self.vy = vy
 
@@ -29,6 +31,7 @@ class PhysicsObject:
         self.x += self.vx
         self.y += self.vy
         self.rect.left = self.x
+        self.rect.top = self.y
 
 class Block(pygame.sprite.Sprite, PhysicsObject):
 
@@ -57,12 +60,32 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_image('tux.png', ALPHA)
         self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
-        PhysicsObject.__init__(self, pixelsBySecondToSpeedUnit(100.0), 0.0)
-        print self.vx
         self.key = 0
+        self.speed = pixelsBySecondToSpeedUnit(100.0)
+        self.stop = self.rect.left % self.rect.w
+        PhysicsObject.__init__(self)
+
+    def setSpeed(self, vx, vy):
+        PhysicsObject.setSpeed(self, vx, vy)
+        
+    def setSpeedFromKey(self, key):
+        self.key = self.key
+        if key == pygame.K_UP:
+            self.setSpeed(0, -self.speed)
+        elif key == pygame.K_DOWN:
+            self.setSpeed(0, self.speed)
+        elif key == pygame.K_LEFT:
+            self.setSpeed(-self.speed, 0)
+        elif key == pygame.K_RIGHT:
+            self.setSpeed(self.speed, 0)
 
     def update(self):
         self.doPhysics()
+#        if self.rect.left % self.rect.w == self.stop:
+#            self.vx = 0
+#            pressed = pygame.key.get_pressed()
+#            if pressed[pygame.K_UP]:
+#                self.vy = -self.speed 
 
 
 # Initialization
@@ -128,7 +151,7 @@ def event(event):
         if event.key == pygame.K_ESCAPE:
             return "Menu"
         elif event.key in (pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT):
-            pingoo.key = event.key
+            pingoo.setSpeedFromKey(event.key)
         return
 
 #    if event.type == pygame.KEYUP:
