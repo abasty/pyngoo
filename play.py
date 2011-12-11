@@ -47,15 +47,14 @@ class PhysicsObject:
     """An object that implements simple 2d physics"""
     def __init__(self, position = Vector2d(0.0, 0.0), velocity = Vector2d(0.0, 0.0)):
         self.position = position
-        self.target = position
+        self.target = Vector2d(position.x, position.y)
         self.velocity = velocity
         self.velocityMax = 0.0
 
     def updateTarget(self):
         """This method computes new target given AI or key input
-        It should be overridden in subclasses and return True if a new target
-        is available, False otherwise."""
-        return False
+        It should be overridden in subclasses"""
+        pass
 
     def updatePhysics(self):
         # get target if needed
@@ -106,13 +105,13 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
 
     def updateTarget(self):
         if self.key == pygame.K_UP:
-            self.target = self.position + Vector2d(0.0, -self.rect.h)
+            self.target.y -= self.rect.h
         elif self.key == pygame.K_DOWN:
-            self.target = self.position + Vector2d(0.0, self.rect.h)
+            self.target.y += self.rect.h
         elif self.key == pygame.K_LEFT:
-            self.target = self.position + Vector2d(-self.rect.w, 0.0)
+            self.target.x -= self.rect.w
         elif self.key == pygame.K_RIGHT:
-            self.target = self.position + Vector2d(self.rect.w, 0.0)
+            self.target.x += self.rect.w
 
     def update(self):
         self.updatePhysics()
