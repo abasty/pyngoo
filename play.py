@@ -58,16 +58,19 @@ class PhysicsObject:
         return False
 
     def updatePhysics(self):
+        # get target if needed
         if self.position == self.target:
             self.updateTarget()
+        # compute delta to target and velocity to apply
         delta = self.target - self.position
+        if delta == Vector2d(0, 0):
+            return
         if delta.length() <= self.velocityMax:
             self.velocity = delta
         else:
             self.velocity = delta.normalize(self.velocityMax)
+        # apply velocity
         self.position += self.velocity
-        self.rect.left = self.position.x
-        self.rect.top = self.position.y
 
 class Block(pygame.sprite.Sprite, PhysicsObject):
     """The class to represent a block"""
@@ -113,6 +116,8 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
 
     def update(self):
         self.updatePhysics()
+        self.rect.left = self.position.x
+        self.rect.top = self.position.y
 
 # Initialization
 def init():
