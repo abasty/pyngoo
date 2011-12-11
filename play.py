@@ -2,6 +2,7 @@
 
 import random
 import pygame
+import math
 from game import screen, load_image, xorigin, yorigin, ALPHA, COLORKEY_AUTO
 
 back = pygame.image.load("media/playbackground.png").convert()
@@ -26,35 +27,50 @@ class Vector2d:
 
     def __sub__(self, other):
         return Vector2d(self.x - other.x, self.y - other.y)
+    
+    def __eq__(self,other):
+        return self.x == other.x and self.y == other.y
+
+    def length(self):
+        if self.x == 0:
+            return abs(self.y)
+        elif self.y == 0:
+            return abs(self.x)
+        else:
+            return math.sqrt(self.x * self.x + self.y * self.y)
+
+    def normalize(self, r = 1.0):
+        l = self.length()
+        return Vector2d(self.x / l * r, self.y / l * r)
 
 class PhysicsObject:
-
+    """An object that implements simple 2d physics"""
     def __init__(self, position = Vector2d(0.0, 0.0), velocity = Vector2d(0.0, 0.0)):
         self.position = position
+        self.target = position
         self.velocity = velocity
+        self.velocityMax = 0.0
 
-    def getNewTarget(self):
+    def updateTarget(self):
         """This method computes new target given AI or key input
         It should be overridden in subclasses and return True if a new target
         is available, False otherwise."""
         return False
 
-    def onTarget(self):
-        pass
-    
     def updatePhysics(self):
-        # test target
-        if self.onTarget():
-            if not self.getNewTarget():
-                return
-    
-    def doPhysics(self):
+        if self.position == self.target:
+            self.updateTarget()
+        delta = self.target - self.position
+        if delta.length() <= self.velocityMax:
+            self.velocity = delta
+        else:
+            self.velocity = delta.normalize(self.velocityMax)
         self.position += self.velocity
         self.rect.left = self.position.x
         self.rect.top = self.position.y
 
 class Block(pygame.sprite.Sprite, PhysicsObject):
-
+    """The class to represent a block"""
     def __init__(self, l, c):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_image('glacon.png', COLORKEY_AUTO)
@@ -65,7 +81,7 @@ class Block(pygame.sprite.Sprite, PhysicsObject):
         pass
 
 class Border(pygame.sprite.Sprite):
-
+    """The class to represent a border block"""
     def __init__(self, l, c):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_image('igloo.jpg')
@@ -75,38 +91,28 @@ class Border(pygame.sprite.Sprite):
         pass
 
 class Pingoo(pygame.sprite.Sprite, PhysicsObject):
-
+    """The pingoo/player class"""
     def __init__(self, l, c):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_image('tux.png', ALPHA)
         self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
-        self.key = 0
-        self.speed = pixelsBySecondToSpeedUnit(100.0)
-        self.stop = self.rect.left % self.rect.w
         PhysicsObject.__init__(self, Vector2d(self.rect.left, self.rect.top))
+        self.key = 0
+        self.velocityMax = pixelsBySecondToSpeedUnit(100.0)
+        self.stop = self.rect.left % self.rect.w
 
-    def setSpeed(self, vx, vy):
-        self.velocity = Vector2d(vx, vy)
-
-    def setSpeedFromKey(self, key):
-        self.key = self.key
-        if key == pygame.K_UP:
-            self.setSpeed(0, -self.speed)
-        elif key == pygame.K_DOWN:
-            self.setSpeed(0, self.speed)
-        elif key == pygame.K_LEFT:
-            self.setSpeed(-self.speed, 0)
-        elif key == pygame.K_RIGHT:
-            self.setSpeed(self.speed, 0)
+    def updateTarget(self):
+        if self.key == pygame.K_UP:
+            self.target = self.position + Vector2d(0.0, -self.rect.h)
+        elif self.key == pygame.K_DOWN:
+            self.target = self.position + Vector2d(0.0, self.rect.h)
+        elif self.key == pygame.K_LEFT:
+            self.target = self.position + Vector2d(-self.rect.w, 0.0)
+        elif self.key == pygame.K_RIGHT:
+            self.target = self.position + Vector2d(self.rect.w, 0.0)
 
     def update(self):
-        self.doPhysics()
-#        if self.rect.left % self.rect.w == self.stop:
-#            self.vx = 0
-#            pressed = pygame.key.get_pressed()
-#            if pressed[pygame.K_UP]:
-#                self.vy = -self.speed 
-
+        self.updatePhysics()
 
 # Initialization
 def init():
@@ -171,13 +177,8 @@ def event(event):
         if event.key == pygame.K_ESCAPE:
             return "Menu"
         elif event.key in (pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT):
-            pingoo.setSpeedFromKey(event.key)
+            pingoo.key = event.key
         return
-
-#    if event.type == pygame.KEYUP:
-#        undefine_move_if_equal(event.key)
-#       return
-
 
 # Draw callback
 def draw():
