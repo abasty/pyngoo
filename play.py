@@ -15,23 +15,43 @@ deltaT = 20
 def pixelsBySecondToSpeedUnit(pxBysec):
     return pxBysec * deltaT / 1000.0
 
+class Vector2d:
+    """A class to manipulate 2d vectors such as position or speed"""
+    def __init__(self, x = 0.0, y = 0.0):
+        self.x = x
+        self.y = y
+        
+    def __add__(self, other):
+        return Vector2d(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other):
+        return Vector2d(self.x - other.x, self.y - other.y)
+
 class PhysicsObject:
 
-    def __init__(self, vx = 0.0, vy = 0.0):
-        # position
-        self.x = self.rect.left
-        self.y = self.rect.top
-        self.setSpeed(vx, vy)
+    def __init__(self, position = Vector2d(0.0, 0.0), velocity = Vector2d(0.0, 0.0)):
+        self.position = position
+        self.velocity = velocity
 
-    def setSpeed(self, vx, vy):
-        self.vx = vx
-        self.vy = vy
+    def getNewTarget(self):
+        """This method computes new target given AI or key input
+        It should be overridden in subclasses and return True if a new target
+        is available, False otherwise."""
+        return False
 
+    def onTarget(self):
+        pass
+    
+    def updatePhysics(self):
+        # test target
+        if self.onTarget():
+            if not self.getNewTarget():
+                return
+    
     def doPhysics(self):
-        self.x += self.vx
-        self.y += self.vy
-        self.rect.left = self.x
-        self.rect.top = self.y
+        self.position += self.velocity
+        self.rect.left = self.position.x
+        self.rect.top = self.position.y
 
 class Block(pygame.sprite.Sprite, PhysicsObject):
 
@@ -39,7 +59,7 @@ class Block(pygame.sprite.Sprite, PhysicsObject):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_image('glacon.png', COLORKEY_AUTO)
         self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
-        PhysicsObject.__init__(self)
+        PhysicsObject.__init__(self, Vector2d(self.rect.left, self.rect.top))
 
     def update(self):
         pass
@@ -63,7 +83,7 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
         self.key = 0
         self.speed = pixelsBySecondToSpeedUnit(100.0)
         self.stop = self.rect.left % self.rect.w
-        PhysicsObject.__init__(self)
+        PhysicsObject.__init__(self, Vector2d(self.rect.left, self.rect.top))
 
     def setSpeed(self, vx, vy):
         PhysicsObject.setSpeed(self, vx, vy)
