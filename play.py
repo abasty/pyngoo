@@ -86,8 +86,8 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
         PhysicsObject.__init__(self, Vector2d(self.rect.left, self.rect.top))
 
     def setSpeed(self, vx, vy):
-        PhysicsObject.setSpeed(self, vx, vy)
-        
+        self.velocity = Vector2d(vx, vy)
+
     def setSpeedFromKey(self, key):
         self.key = self.key
         if key == pygame.K_UP:
