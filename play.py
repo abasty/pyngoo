@@ -56,6 +56,11 @@ class PhysicsObject:
         It should be overridden in subclasses"""
         pass
 
+    def cancelPhysics(self):
+        self.rect = self.lastRect
+        self.position = Vector2d(self.lastRect.x, self.lastRect.y)
+        self.target = Vector2d(self.lastRect.x, self.lastRect.y)
+
     def updatePhysics(self):
         # get target if needed
         if self.position == self.target:
@@ -70,6 +75,10 @@ class PhysicsObject:
             self.velocity = delta.normalize(self.velocityMax)
         # apply velocity
         self.position += self.velocity
+
+        self.lastRect = pygame.Rect(self.rect)
+        self.rect.left = self.position.x
+        self.rect.top = self.position.y
 
 class Block(pygame.sprite.Sprite, PhysicsObject):
     """The class to represent a block"""
@@ -112,11 +121,14 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
             self.target.x -= self.rect.w
         elif self.key == pygame.K_RIGHT:
             self.target.x += self.rect.w
+        else:
+            self.target = Vector2d(self.position.x, self.position.y)
 
     def update(self):
         self.updatePhysics()
-        self.rect.left = self.position.x
-        self.rect.top = self.position.y
+        hit = pygame.sprite.spritecollide(self, labyrinth, False)
+        if hit:
+            self.cancelPhysics()
 
 # Initialization
 def init():
@@ -168,12 +180,6 @@ def leave():
     labyrinth.empty()
     player.empty()
     del pingoo
-
-def begin_move():
-    pass
-
-def move():
-    pass
 
 # Event callback
 def event(event):
