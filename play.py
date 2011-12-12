@@ -109,7 +109,7 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
         self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
         PhysicsObject.__init__(self, Vector2d(self.rect.left, self.rect.top))
         self.key = 0
-        self.velocityMax = pixelsBySecondToSpeedUnit(100.0)
+        self.velocityMax = pixelsBySecondToSpeedUnit(250.0)
         self.stop = self.rect.left % self.rect.w
 
     def updateTarget(self):
