@@ -13,6 +13,12 @@ cmax = 19
 nextT = 0
 deltaT = 20
 
+DIRECTION_NONE = 0
+DIRECTION_UP = 1
+DIRECTION_DOWN = 2
+DIRECTION_LEFT = 3
+DIRECTION_RIGHT = 4
+
 def pixelsBySecondToSpeedUnit(pxBysec):
     return pxBysec * deltaT / 1000.0
 
@@ -49,7 +55,8 @@ class PhysicsObject:
         self.position = position
         self.target = Vector2d(position.x, position.y)
         self.velocity = velocity
-        self.velocityMax = 0.0
+        self.velocityMax = 1.0
+        self.direction = DIRECTION_NONE
 
     def updateTarget(self):
         """This method computes new target given AI or key input
@@ -87,9 +94,20 @@ class Block(pygame.sprite.Sprite, PhysicsObject):
         self.image, self.rect = load_image('glacon.png', COLORKEY_AUTO)
         self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
         PhysicsObject.__init__(self, Vector2d(self.rect.left, self.rect.top))
+        self.velocityMax = pixelsBySecondToSpeedUnit(500.0)
+
+    def updateTarget(self):
+        if self.direction == DIRECTION_NONE:
+            return
+        self.target.y -= self.rect.h
 
     def update(self):
-        pass
+        self.updatePhysics()
+        hit = pygame.sprite.spritecollide(self, labyrinth, False)
+        for h in hit:
+            if h != self:
+                self.cancelPhysics()
+                self.direction = DIRECTION_NONE
 
 class Border(pygame.sprite.Sprite):
     """The class to represent a border block"""
@@ -110,25 +128,35 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
         PhysicsObject.__init__(self, Vector2d(self.rect.left, self.rect.top))
         self.velocityMax = pixelsBySecondToSpeedUnit(250.0)
         self.stop = self.rect.left % self.rect.w
+        self.pushing = False
 
     def updateTarget(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP]:
             self.target.y -= self.rect.h
+            self.direction = DIRECTION_UP
         elif keys[pygame.K_DOWN]:
             self.target.y += self.rect.h
+            self.direction = DIRECTION_DOWN
         elif keys[pygame.K_LEFT]:
             self.target.x -= self.rect.w
+            self.direction = DIRECTION_LEFT
         elif keys[pygame.K_RIGHT]:
             self.target.x += self.rect.w
+            self.direction = DIRECTION_RIGHT
         else:
             self.target = Vector2d(self.position.x, self.position.y)
+            self.direction = DIRECTION_NONE
+        
+        self.pushing = keys[pygame.K_SPACE]
 
     def update(self):
         self.updatePhysics()
         hit = pygame.sprite.spritecollide(self, labyrinth, False)
         if hit:
             self.cancelPhysics()
+            if isinstance(hit[0], Block) and self.pushing:
+                hit[0].direction = self.direction
 
 # Initialization
 def init():
