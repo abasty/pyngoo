@@ -99,7 +99,14 @@ class Block(pygame.sprite.Sprite, PhysicsObject):
     def updateTarget(self):
         if self.direction == DIRECTION_NONE:
             return
-        self.target.y -= self.rect.h
+        elif self.direction == DIRECTION_UP:
+            self.target.y -= self.rect.h
+        elif self.direction == DIRECTION_DOWN:
+            self.target.y += self.rect.h
+        elif self.direction == DIRECTION_LEFT:
+            self.target.x -= self.rect.w
+        elif self.direction == DIRECTION_RIGHT:
+            self.target.x += self.rect.w
 
     def update(self):
         self.updatePhysics()
@@ -131,6 +138,8 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
         self.pushing = False
 
     def updateTarget(self):
+        # TODO: use something like int(self.target.y / self.rect.h + 1) * self.rect.h
+        # TODO: a method like PhysicsObject.setTargetFromPositionDirection()
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP]:
             self.target.y -= self.rect.h
