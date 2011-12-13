@@ -108,18 +108,18 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
         self.image, self.rect = load_image('tux.png', ALPHA)
         self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
         PhysicsObject.__init__(self, Vector2d(self.rect.left, self.rect.top))
-        self.key = 0
         self.velocityMax = pixelsBySecondToSpeedUnit(250.0)
         self.stop = self.rect.left % self.rect.w
 
     def updateTarget(self):
-        if self.key == pygame.K_UP:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_UP]:
             self.target.y -= self.rect.h
-        elif self.key == pygame.K_DOWN:
+        elif keys[pygame.K_DOWN]:
             self.target.y += self.rect.h
-        elif self.key == pygame.K_LEFT:
+        elif keys[pygame.K_LEFT]:
             self.target.x -= self.rect.w
-        elif self.key == pygame.K_RIGHT:
+        elif keys[pygame.K_RIGHT]:
             self.target.x += self.rect.w
         else:
             self.target = Vector2d(self.position.x, self.position.y)
@@ -186,8 +186,6 @@ def event(event):
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_ESCAPE:
             return "Menu"
-        elif event.key in (pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT):
-            pingoo.key = event.key
         return
 
 # Draw callback
