@@ -1,0 +1,12 @@
+INTRODUCTION
+pyngoo is an old style game written in python/pygame
+
+INSTALL
+* Install python-pygame on your distribution
+* Get the github source: git clone git://github.com/abasty/pyngoo.git
+
+RUN
+Run the pyngoo script.
+
+PLAY
+Use arrow keys to move pyngoo. Use space to push rocks.
