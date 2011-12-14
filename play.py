@@ -51,10 +51,11 @@ class Vector2d:
 
 class PhysicsObject:
     """An object that implements simple 2d physics"""
-    def __init__(self, position = Vector2d(0.0, 0.0), velocity = Vector2d(0.0, 0.0)):
+    #FIXME: this should be a subclass of pygame Sprite or DurtySprite
+    def __init__(self, position = Vector2d(0.0, 0.0)):
         self.position = position
         self.target = Vector2d(position.x, position.y)
-        self.velocity = velocity
+        self.velocity = Vector2d(0.0, 0.0)
         self.velocityMax = 1.0
         self.direction = DIRECTION_NONE
 
@@ -73,9 +74,14 @@ class PhysicsObject:
         if self.position == self.target:
             self.updateTarget()
         # compute delta to target and velocity to apply
+        # NOTE: this is a simple physics algo w/ only velocity applied to position
+        # NOTE: More complex physics can be implemented here based on ramp
+        # NOTE: acceleration, or other imagined physics.
         delta = self.target - self.position
+        # shortcut to null movement
         if delta == Vector2d(0, 0):
             return
+        # max speed control
         if delta.length() <= self.velocityMax:
             self.velocity = delta
         else:
@@ -83,6 +89,7 @@ class PhysicsObject:
         # apply velocity
         self.position += self.velocity
 
+        # apply physics to pygame sprite (and recall last position to enable cancel)
         self.lastRect = pygame.Rect(self.rect)
         self.rect.left = self.position.x
         self.rect.top = self.position.y
