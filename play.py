@@ -135,8 +135,8 @@ class Block(PhysicsSprite):
 
     def destroy(self):
         self.kill()
-    
-    def update(self):
+
+    def update(self, t):
         if self.state in [ self.STATE_JUST_PUSHED, self.STATE_PUSHED ]:
             self.updatePhysics()
             hit = pygame.sprite.spritecollide(self, labyrinth, False)
@@ -160,7 +160,7 @@ class Border(PhysicsSprite):
     def __init__(self, l, c):
         PhysicsSprite.__init__(self, l, c, 'igloo.jpg', None)
 
-    def update(self):
+    def update(self, t):
         pass
 
 class Pingoo(PhysicsSprite):
@@ -188,10 +188,10 @@ class Pingoo(PhysicsSprite):
         else:
             self.target = Vector2d(self.position.x, self.position.y)
             self.direction = DIRECTION_NONE
-        
+
         self.pushing = keys[pygame.K_SPACE]
 
-    def update(self):
+    def update(self, t):
         self.updatePhysics()
         hit = pygame.sprite.spritecollide(self, labyrinth, False)
         if hit:
@@ -262,8 +262,8 @@ def draw():
     global nextT, deltaT
     t = pygame.time.get_ticks()
     while t >= nextT:
-        player.update()
-        labyrinth.update()
+        player.update(t)
+        labyrinth.update(t)
         nextT += deltaT
     screen.blit(back, [0, 0])
     labyrinth.draw(screen)
