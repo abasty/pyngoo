@@ -27,6 +27,9 @@ MOTIONTICK = pygame.USEREVENT
 COLORKEY_AUTO = -1
 ALPHA = -2
 
+# FIXME: Implement image cache = create an associative array between image name and image itself
+# FIXME: Do not load the image if the image is already available in the cache
+
 def load_image(name, colorkey=None):
     fullname = os.path.join('media', name)
     try:
