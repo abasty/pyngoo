@@ -49,7 +49,7 @@ class Vector2d:
         l = self.length()
         return Vector2d(self.x / l * r, self.y / l * r)
 
-class PhysicsObject:
+class PhysicsSprite(pygame.sprite.Sprite):
     """An object that implements simple 2d physics"""
     #FIXME: this should be a subclass of pygame Sprite or DurtySprite
     def __init__(self, position = Vector2d(0.0, 0.0)):
@@ -94,13 +94,18 @@ class PhysicsObject:
         self.position = Vector2d(self.lastRect.x, self.lastRect.y)
         self.target = Vector2d(self.lastRect.x, self.lastRect.y)
 
-class Block(pygame.sprite.Sprite, PhysicsObject):
+    def push(self, direction):
+        """This method is called when the object is pushed in a direction
+        It should be overridden in subclasses if the object can be pushed"""
+        pass
+    
+class Block(PhysicsSprite):
     """The class to represent a block"""
     def __init__(self, l, c):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_image('glacon.png', COLORKEY_AUTO)
         self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
-        PhysicsObject.__init__(self, Vector2d(self.rect.left, self.rect.top))
+        PhysicsSprite.__init__(self, Vector2d(self.rect.left, self.rect.top))
         self.velocityMax = pixelsBySecondToSpeedUnit(500.0)
 
     def updateTarget(self):
@@ -123,7 +128,10 @@ class Block(pygame.sprite.Sprite, PhysicsObject):
                 self.cancelPhysics()
                 self.direction = DIRECTION_NONE
 
-class Border(pygame.sprite.Sprite):
+    def push(self, direction):
+        self.direction = direction
+
+class Border(PhysicsSprite):
     """The class to represent a border block"""
     def __init__(self, l, c):
         pygame.sprite.Sprite.__init__(self)
@@ -133,19 +141,19 @@ class Border(pygame.sprite.Sprite):
     def update(self):
         pass
 
-class Pingoo(pygame.sprite.Sprite, PhysicsObject):
+class Pingoo(PhysicsSprite):
     """The pingoo/player class"""
     def __init__(self, l, c):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_image('tux.png', ALPHA)
         self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
-        PhysicsObject.__init__(self, Vector2d(self.rect.left, self.rect.top))
+        PhysicsSprite.__init__(self, Vector2d(self.rect.left, self.rect.top))
         self.velocityMax = pixelsBySecondToSpeedUnit(250.0)
         self.pushing = False
 
     def updateTarget(self):
         # TODO: use something like int(self.target.y / self.rect.h + 1) * self.rect.h
-        # TODO: a method like PhysicsObject.setTargetFromPositionDirection()
+        # TODO: a method like PhysicsSprite.setTargetFromPositionDirection()
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP]:
             self.target.y -= self.rect.h
@@ -170,8 +178,8 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
         hit = pygame.sprite.spritecollide(self, labyrinth, False)
         if hit:
             self.cancelPhysics()
-            if isinstance(hit[0], Block) and self.pushing:
-                hit[0].direction = self.direction
+            if self.pushing:
+                hit[0].push(self.direction)
 
 # Initialization
 def init():
