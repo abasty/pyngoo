@@ -51,7 +51,6 @@ class Vector2d:
 
 class PhysicsSprite(pygame.sprite.Sprite):
     """An object that implements simple 2d physics"""
-    #FIXME: this should be a subclass of pygame Sprite or DurtySprite
     def __init__(self, position = Vector2d(0.0, 0.0)):
         self.position = position
         self.target = Vector2d(position.x, position.y)
