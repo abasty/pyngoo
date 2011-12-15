@@ -1,5 +1,11 @@
+CAUTION
+* This is very early stage dev
+* Code License is GPL 2
+* Media License is respective license of each content
+* Still need to write down from where each content comes and to thanks authors 
+
 INTRODUCTION
-pyngoo is an old style game written in python/pygame
+pyngoo is an old style game written in python/pygame.
 
 INSTALL
 * Install python-pygame on your distribution
@@ -9,4 +15,4 @@ RUN
 Run the pyngoo script.
 
 PLAY
-Use arrow keys to move pyngoo. Use space to push rocks.
+Use arrow keys to move pyngoo. Use space to push/destroy rocks.
