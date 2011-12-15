@@ -54,6 +54,8 @@ class Vector2d:
 
 class PhysicsSprite(pygame.sprite.Sprite):
     """An object that implements simple 2d physics"""
+    STATE_NORMAL = 0
+    
     # velocityMaxInPixelsPerSeconds default to 1.0 for debugging purpose
     def __init__(self, l, c, image, colorkey, velocityMaxInPixelsPerSeconds = 1.0):
         pygame.sprite.Sprite.__init__(self)
@@ -65,6 +67,7 @@ class PhysicsSprite(pygame.sprite.Sprite):
         self.velocityMax = pixelsPerSecondToSpeedUnit(velocityMaxInPixelsPerSeconds)
         self.direction = DIRECTION_NONE
         self.lastRect = self.rect
+        self.state = self.STATE_NORMAL
 
     def updateTarget(self):
         """This method computes new target given AI or key input
@@ -101,13 +104,20 @@ class PhysicsSprite(pygame.sprite.Sprite):
         self.position = Vector2d(self.lastRect.x, self.lastRect.y)
         self.target = Vector2d(self.lastRect.x, self.lastRect.y)
 
+    def setState(self, state):
+        self.state = state
+
     def push(self, direction):
         """This method is called when the object is pushed in a direction
         It should be overridden in subclasses if the object can be pushed"""
         pass
-    
+
 class Block(PhysicsSprite):
     """The class to represent a block"""
+    
+    STATE_JUST_PUSHED = 1
+    STATE_PUSHED = 2
+    
     def __init__(self, l, c):
         PhysicsSprite.__init__(self, l, c, 'glacon.png', COLORKEY_AUTO, 500.0)
 
@@ -123,16 +133,27 @@ class Block(PhysicsSprite):
         elif self.direction == DIRECTION_RIGHT:
             self.target.x += self.rect.w
 
+    def destroy(self):
+        self.kill()
+    
     def update(self):
-        self.updatePhysics()
-        hit = pygame.sprite.spritecollide(self, labyrinth, False)
-        for h in hit:
-            if h != self:
-                self.cancelPhysics()
-                self.direction = DIRECTION_NONE
+        if self.state in [ self.STATE_JUST_PUSHED, self.STATE_PUSHED ]:
+            self.updatePhysics()
+            hit = pygame.sprite.spritecollide(self, labyrinth, False)
+            if len(hit) == 1:
+                self.setState(self.STATE_PUSHED)
+            else:
+                for h in hit:
+                    if h != self:
+                        self.cancelPhysics()
+                        self.direction = DIRECTION_NONE
+                        if self.state == self.STATE_JUST_PUSHED:
+                            self.destroy()
+                        self.setState(self.STATE_NORMAL)
 
     def push(self, direction):
         self.direction = direction
+        self.setState(self.STATE_JUST_PUSHED)
 
 class Border(PhysicsSprite):
     """The class to represent a border block"""
