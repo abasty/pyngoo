@@ -19,7 +19,7 @@ DIRECTION_DOWN = 2
 DIRECTION_LEFT = 3
 DIRECTION_RIGHT = 4
 
-def pixelsBySecondToSpeedUnit(pxBysec):
+def pixelsPerSecondToSpeedUnit(pxBysec):
     return pxBysec * deltaT / 1000.0
 
 class Vector2d:
@@ -37,6 +37,9 @@ class Vector2d:
     def __eq__(self,other):
         return self.x == other.x and self.y == other.y
 
+    def copy(self):
+        return Vector2d(self.x, self.y)
+
     def length(self):
         if self.x == 0:
             return abs(self.y)
@@ -51,12 +54,17 @@ class Vector2d:
 
 class PhysicsSprite(pygame.sprite.Sprite):
     """An object that implements simple 2d physics"""
-    def __init__(self, position = Vector2d(0.0, 0.0)):
-        self.position = position
-        self.target = Vector2d(position.x, position.y)
+    # velocityMaxInPixelsPerSeconds default to 1.0 for debugging purpose
+    def __init__(self, l, c, image, colorkey, velocityMaxInPixelsPerSeconds = 1.0):
+        pygame.sprite.Sprite.__init__(self)
+        self.image, self.rect = load_image(image, colorkey)
+        self.position = Vector2d(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
+        self.rect.move_ip(self.position.x, self.position.y)
+        self.target = self.position.copy()
         self.velocity = Vector2d(0.0, 0.0)
-        self.velocityMax = 1.0
+        self.velocityMax = pixelsPerSecondToSpeedUnit(velocityMaxInPixelsPerSeconds)
         self.direction = DIRECTION_NONE
+        self.lastRect = self.rect
 
     def updateTarget(self):
         """This method computes new target given AI or key input
@@ -101,11 +109,7 @@ class PhysicsSprite(pygame.sprite.Sprite):
 class Block(PhysicsSprite):
     """The class to represent a block"""
     def __init__(self, l, c):
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_image('glacon.png', COLORKEY_AUTO)
-        self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
-        PhysicsSprite.__init__(self, Vector2d(self.rect.left, self.rect.top))
-        self.velocityMax = pixelsBySecondToSpeedUnit(500.0)
+        PhysicsSprite.__init__(self, l, c, 'glacon.png', COLORKEY_AUTO, 500.0)
 
     def updateTarget(self):
         if self.direction == DIRECTION_NONE:
@@ -133,21 +137,15 @@ class Block(PhysicsSprite):
 class Border(PhysicsSprite):
     """The class to represent a border block"""
     def __init__(self, l, c):
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_image('igloo.jpg')
-        self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
-    
+        PhysicsSprite.__init__(self, l, c, 'igloo.jpg', None)
+
     def update(self):
         pass
 
 class Pingoo(PhysicsSprite):
     """The pingoo/player class"""
     def __init__(self, l, c):
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_image('tux.png', ALPHA)
-        self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
-        PhysicsSprite.__init__(self, Vector2d(self.rect.left, self.rect.top))
-        self.velocityMax = pixelsBySecondToSpeedUnit(250.0)
+        PhysicsSprite.__init__(self, l, c, 'tux.png', ALPHA, 250.0)
         self.pushing = False
 
     def updateTarget(self):
