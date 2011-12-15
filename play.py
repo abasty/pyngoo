@@ -64,11 +64,6 @@ class PhysicsObject:
         It should be overridden in subclasses"""
         pass
 
-    def cancelPhysics(self):
-        self.rect = self.lastRect
-        self.position = Vector2d(self.lastRect.x, self.lastRect.y)
-        self.target = Vector2d(self.lastRect.x, self.lastRect.y)
-
     def updatePhysics(self):
         # get target if needed
         if self.position == self.target:
@@ -93,6 +88,11 @@ class PhysicsObject:
         self.lastRect = pygame.Rect(self.rect)
         self.rect.left = self.position.x
         self.rect.top = self.position.y
+
+    def cancelPhysics(self):
+        self.rect = self.lastRect
+        self.position = Vector2d(self.lastRect.x, self.lastRect.y)
+        self.target = Vector2d(self.lastRect.x, self.lastRect.y)
 
 class Block(pygame.sprite.Sprite, PhysicsObject):
     """The class to represent a block"""
@@ -141,7 +141,6 @@ class Pingoo(pygame.sprite.Sprite, PhysicsObject):
         self.rect.move_ip(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
         PhysicsObject.__init__(self, Vector2d(self.rect.left, self.rect.top))
         self.velocityMax = pixelsBySecondToSpeedUnit(250.0)
-        self.stop = self.rect.left % self.rect.w
         self.pushing = False
 
     def updateTarget(self):
