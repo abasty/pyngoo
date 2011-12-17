@@ -52,10 +52,10 @@ class Vector2d:
         l = self.length()
         return Vector2d(self.x / l * r, self.y / l * r)
 
-class PhysicsSprite(pygame.sprite.Sprite):
+class PhysicsSprite(pygame.sprite.DirtySprite):
     """An object that implements simple 2d physics"""
     STATE_NORMAL = 0
-    
+
     # velocityMaxInPixelsPerSeconds default to 1.0 for debugging purpose
     def __init__(self, l, c, image, colorkey, velocityMaxInPixelsPerSeconds = 1.0):
         pygame.sprite.Sprite.__init__(self)
@@ -167,6 +167,7 @@ class Pingoo(PhysicsSprite):
     """The pingoo/player class"""
     def __init__(self, l, c):
         PhysicsSprite.__init__(self, l, c, 'tux.png', ALPHA, 250.0)
+        self.source_rect = pygame.Rect(10, 10, 10, 10)
         self.pushing = False
 
     def updateTarget(self):
