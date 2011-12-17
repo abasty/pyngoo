@@ -86,10 +86,7 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         # shortcut to null movement
         if delta == Vector2d(0, 0):
             return
-        
-        # dirty flag
-        self.dirty = 1
-        
+
         # max speed control
         if delta.length() <= self.velocityMax:
             self.velocity = delta
@@ -102,6 +99,7 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         self.lastRect = pygame.Rect(self.rect)
         self.rect.left = self.position.x
         self.rect.top = self.position.y
+        self.dirty = 1        
 
     def cancelPhysics(self):
         self.rect = self.lastRect
@@ -211,8 +209,7 @@ def enter():
     global labyrinth, player, pingoo
     labyrinth = pygame.sprite.LayeredDirty()
     pingoo = Pingoo(lmax / 2, cmax / 2)
-    player = pygame.sprite.LayeredDirty()
-    player.add(pingoo)
+    player = pygame.sprite.LayeredDirty(pingoo)
 
     # Labyrinth
     tableau = []
