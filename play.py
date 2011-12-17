@@ -58,7 +58,7 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
 
     # velocityMaxInPixelsPerSeconds default to 1.0 for debugging purpose
     def __init__(self, l, c, image, colorkey, velocityMaxInPixelsPerSeconds = 1.0):
-        pygame.sprite.Sprite.__init__(self)
+        pygame.sprite.DirtySprite.__init__(self)
         self.image, self.rect = load_image(image, colorkey)
         self.position = Vector2d(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
         self.rect.move_ip(self.position.x, self.position.y)
@@ -86,6 +86,10 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         # shortcut to null movement
         if delta == Vector2d(0, 0):
             return
+        
+        # dirty flag
+        self.dirty = 1
+        
         # max speed control
         if delta.length() <= self.velocityMax:
             self.velocity = delta
@@ -167,7 +171,6 @@ class Pingoo(PhysicsSprite):
     """The pingoo/player class"""
     def __init__(self, l, c):
         PhysicsSprite.__init__(self, l, c, 'tux.png', ALPHA, 250.0)
-        self.source_rect = pygame.Rect(10, 10, 10, 10)
         self.pushing = False
 
     def updateTarget(self):
@@ -206,9 +209,10 @@ def init():
 
 def enter():
     global labyrinth, player, pingoo
-    labyrinth = pygame.sprite.RenderPlain()
+    labyrinth = pygame.sprite.LayeredDirty()
     pingoo = Pingoo(lmax / 2, cmax / 2)
-    player = pygame.sprite.RenderPlain(pingoo)
+    player = pygame.sprite.LayeredDirty()
+    player.add(pingoo)
 
     # Labyrinth
     tableau = []
@@ -260,13 +264,14 @@ def event(event):
 
 # Draw callback
 def draw():
-    global nextT, deltaT
+    global nextT, deltaT, labyrinth, player
     t = pygame.time.get_ticks()
     while t >= nextT:
         player.update(t)
         labyrinth.update(t)
         nextT += deltaT
-    screen.blit(back, [0, 0])
+    labyrinth.clear(screen, back)
+    player.clear(screen, back)
     labyrinth.draw(screen)
     player.draw(screen)
 
