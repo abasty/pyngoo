@@ -56,10 +56,20 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
     """An object that implements simple 2d physics"""
     STATE_NORMAL = 0
 
-    # velocityMaxInPixelsPerSeconds default to 1.0 for debugging purpose
-    def __init__(self, l, c, image, colorkey, velocityMaxInPixelsPerSeconds = 1.0):
+    def __init__(self, l, c, image, colorkey, n, velocityMaxInPixelsPerSeconds):
+        """
+        Initialize a new PhysicsObject instance
+        
+        l -- pseudo line (vertical coordinate) of the object
+        c -- pseudo column (horizontal coordinate) of the object
+        image -- name of an image file in the medi folder
+        colorkey -- color key of the image (can be None, ALPHA, COLORKEY_AUTO)
+        n -- How many sprite frames in the image file
+        velocityMaxInPixelsPerSeconds -- Maximum velocity of the object
+        """
         pygame.sprite.DirtySprite.__init__(self)
-        self.image, self.rect = load_image(image, colorkey)
+        self.image, self.rect = load_image(image, colorkey, n)
+        self.source_rect = self.rect.copy()
         self.position = Vector2d(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
         self.rect.move_ip(self.position.x, self.position.y)
         self.target = self.position.copy()
@@ -73,6 +83,9 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         """This method computes new target given AI or key input
         It should be overridden in subclasses"""
         pass
+
+    def setSpriteFrame(self, n):
+        self.source_rect.left = n * self.source_rect.w
 
     def updatePhysics(self):
         # get target if needed
@@ -116,13 +129,17 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
 
 class Block(PhysicsSprite):
     """The class to represent a block"""
-    
+
     STATE_JUST_PUSHED = 1
     STATE_PUSHED = 2
-    
-    def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'glacon.png', COLORKEY_AUTO, 500.0)
+    STATE_DYING = 3
 
+    def __init__(self, l, c):
+        PhysicsSprite.__init__(self, l, c, 'glacon-animated.png', COLORKEY_AUTO, 8, 500.0)
+        self.nextFrameT = 0
+        self.deltaFrameT = 40
+        self.frame = 0
+        
     def updateTarget(self):
         if self.direction == DIRECTION_NONE:
             return
@@ -134,9 +151,6 @@ class Block(PhysicsSprite):
             self.target.x -= self.rect.w
         elif self.direction == DIRECTION_RIGHT:
             self.target.x += self.rect.w
-
-    def destroy(self):
-        self.kill()
 
     def update(self, t):
         if self.state in [ self.STATE_JUST_PUSHED, self.STATE_PUSHED ]:
@@ -150,8 +164,19 @@ class Block(PhysicsSprite):
                         self.cancelPhysics()
                         self.direction = DIRECTION_NONE
                         if self.state == self.STATE_JUST_PUSHED:
-                            self.destroy()
-                        self.setState(self.STATE_NORMAL)
+                            self.setState(self.STATE_DYING)
+                            self.nextFrameT = t
+                        else:
+                            self.setState(self.STATE_NORMAL)
+        elif self.state == self.STATE_DYING:
+            while t > self.nextFrameT and self.frame <= 7:
+                self.nextFrameT += self.deltaFrameT
+                self.frame += 1
+            if self.frame <= 7:
+                self.setSpriteFrame(self.frame)
+            else:
+                self.kill()
+            self.dirty = 1
 
     def push(self, direction):
         self.direction = direction
@@ -160,7 +185,7 @@ class Block(PhysicsSprite):
 class Border(PhysicsSprite):
     """The class to represent a border block"""
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'igloo.jpg', None)
+        PhysicsSprite.__init__(self, l, c, 'igloo.jpg', None, 1, 1.0)
 
     def update(self, t):
         pass
@@ -168,7 +193,7 @@ class Border(PhysicsSprite):
 class Pingoo(PhysicsSprite):
     """The pingoo/player class"""
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'tux.png', ALPHA, 250.0)
+        PhysicsSprite.__init__(self, l, c, 'tux.png', ALPHA, 1, 250.0)
         self.pushing = False
 
     def updateTarget(self):

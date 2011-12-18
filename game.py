@@ -30,7 +30,7 @@ ALPHA = -2
 # FIXME: Implement image cache = create an associative array between image name and image itself
 # FIXME: Do not load the image if the image is already available in the cache
 
-def load_image(name, colorkey=None):
+def load_image(name, colorkey, n = 1):
     fullname = os.path.join('media', name)
     try:
         image = pygame.image.load(fullname)
@@ -46,7 +46,10 @@ def load_image(name, colorkey=None):
                 colorkey = image.get_at((0, 0))
             image.set_colorkey(colorkey, RLEACCEL)
 
-    return image, image.get_rect()
+    r = image.get_rect()
+    r.w = r.w / n
+    
+    return image, r
 
 class Object:
     pass
