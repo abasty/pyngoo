@@ -84,8 +84,32 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         It should be overridden in subclasses"""
         pass
 
-    def setSpriteFrame(self, n):
+    def setAnimationFrame(self, n):
+        self.currentFrame = n
         self.source_rect.left = n * self.source_rect.w
+    
+    def startAnimation(self, t, frames, frameRate, loopAnimation = False):
+        self.frames = frames
+        self.framesCount = len(self.frames) 
+        self.currentIndex = 0
+        self.nextFrameT = t
+        self.deltaFrameT = 1000.0 / frameRate
+        self.loopAnimation = loopAnimation
+    
+    def updateAnimation(self, t):
+        if self.currentIndex < 0:
+            return
+        while t > self.nextFrameT:
+            self.nextFrameT += self.deltaFrameT
+            self.currentIndex += 1
+        if self.currentIndex < self.framesCount:
+            self.setAnimationFrame(self.frames[self.currentIndex])
+        elif self.loopAnimation:
+            self.currentIndex = 0
+            self.setAnimationFrame(self.frames[0])
+        else:
+            self.currentIndex = -1
+        self.dirty = 1
 
     def updatePhysics(self):
         # get target if needed
@@ -136,10 +160,7 @@ class Block(PhysicsSprite):
 
     def __init__(self, l, c):
         PhysicsSprite.__init__(self, l, c, 'glacon-animated.png', COLORKEY_AUTO, 8, 500.0)
-        self.nextFrameT = 0
-        self.deltaFrameT = 40
-        self.frame = 0
-        
+
     def updateTarget(self):
         if self.direction == DIRECTION_NONE:
             return
@@ -160,27 +181,24 @@ class Block(PhysicsSprite):
                 self.setState(self.STATE_PUSHED)
             else:
                 for h in hit:
-                    if h != self:
-                        self.cancelPhysics()
-                        self.direction = DIRECTION_NONE
-                        if self.state == self.STATE_JUST_PUSHED:
-                            self.setState(self.STATE_DYING)
-                            self.nextFrameT = t
-                        else:
-                            self.setState(self.STATE_NORMAL)
+                    if h == self:
+                        continue
+                    self.cancelPhysics()
+                    self.direction = DIRECTION_NONE
+                    if self.state == self.STATE_JUST_PUSHED:
+                        self.setState(self.STATE_DYING)
+                        self.startAnimation(t, range(1, 8), 25)
+                    else:
+                        self.setState(self.STATE_NORMAL)
         elif self.state == self.STATE_DYING:
-            while t > self.nextFrameT and self.frame <= 7:
-                self.nextFrameT += self.deltaFrameT
-                self.frame += 1
-            if self.frame <= 7:
-                self.setSpriteFrame(self.frame)
-            else:
+            self.updateAnimation(t)
+            if self.currentIndex < 0:
                 self.kill()
-            self.dirty = 1
 
     def push(self, direction):
-        self.direction = direction
-        self.setState(self.STATE_JUST_PUSHED)
+        if self.state == self.STATE_NORMAL:
+            self.direction = direction
+            self.setState(self.STATE_JUST_PUSHED)
 
 class Border(PhysicsSprite):
     """The class to represent a border block"""
@@ -288,12 +306,12 @@ def event(event):
 def draw():
     global nextT, deltaT, labyrinth, player
     t = pygame.time.get_ticks()
+    labyrinth.clear(screen, back)
+    player.clear(screen, back)
     while t >= nextT:
         player.update(t)
         labyrinth.update(t)
         nextT += deltaT
-    labyrinth.clear(screen, back)
-    player.clear(screen, back)
     labyrinth.draw(screen)
     player.draw(screen)
 
