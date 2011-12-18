@@ -142,6 +142,7 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         self.rect = self.lastRect
         self.position = Vector2d(self.lastRect.x, self.lastRect.y)
         self.target = Vector2d(self.lastRect.x, self.lastRect.y)
+        self.direction = DIRECTION_NONE
 
     def setState(self, state):
         self.state = state
@@ -174,22 +175,22 @@ class Block(PhysicsSprite):
             self.target.x += self.rect.w
 
     def update(self, t):
-        if self.state in [ self.STATE_JUST_PUSHED, self.STATE_PUSHED ]:
+        if self.state == self.STATE_JUST_PUSHED:
             self.updatePhysics()
             hit = pygame.sprite.spritecollide(self, labyrinth, False)
             if len(hit) == 1:
                 self.setState(self.STATE_PUSHED)
-            else:
-                for h in hit:
-                    if h == self:
-                        continue
-                    self.cancelPhysics()
-                    self.direction = DIRECTION_NONE
-                    if self.state == self.STATE_JUST_PUSHED:
-                        self.setState(self.STATE_DYING)
-                        self.startAnimation(t, range(1, 8), 25)
-                    else:
-                        self.setState(self.STATE_NORMAL)
+                return
+            self.cancelPhysics()
+            self.setState(self.STATE_DYING)
+            self.startAnimation(t, range(1, 8), 25)
+        elif self.state == self.STATE_PUSHED:
+            self.updatePhysics()
+            hit = pygame.sprite.spritecollide(self, labyrinth, False)
+            if len(hit) == 1:
+                return
+            self.cancelPhysics()
+            self.setState(self.STATE_NORMAL)
         elif self.state == self.STATE_DYING:
             self.updateAnimation(t)
             if self.currentIndex < 0:
@@ -239,10 +240,11 @@ class Pingoo(PhysicsSprite):
     def update(self, t):
         self.updatePhysics()
         hit = pygame.sprite.spritecollide(self, labyrinth, False)
-        if hit:
-            self.cancelPhysics()
-            if self.pushing:
-                hit[0].push(self.direction)
+        if not hit:
+            return
+        if self.pushing:
+            hit[0].push(self.direction)
+        self.cancelPhysics()
 
 # Initialization
 def init():
