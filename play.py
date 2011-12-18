@@ -209,6 +209,40 @@ class Border(PhysicsSprite):
     def update(self, t):
         pass
 
+class Diamond(PhysicsSprite):
+    """The class to represent a diamond"""
+
+    STATE_PUSHED = 2
+
+    def __init__(self, l, c):
+        PhysicsSprite.__init__(self, l, c, 'diamond.png', None, 1, 500.0)
+
+    def updateTarget(self):
+        if self.direction == DIRECTION_NONE:
+            return
+        elif self.direction == DIRECTION_UP:
+            self.target.y -= self.rect.h
+        elif self.direction == DIRECTION_DOWN:
+            self.target.y += self.rect.h
+        elif self.direction == DIRECTION_LEFT:
+            self.target.x -= self.rect.w
+        elif self.direction == DIRECTION_RIGHT:
+            self.target.x += self.rect.w
+
+    def update(self, t):
+        if self.state == self.STATE_PUSHED:
+            self.updatePhysics()
+            hit = pygame.sprite.spritecollide(self, labyrinth, False)
+            if len(hit) == 1:
+                return
+            self.cancelPhysics()
+            self.setState(self.STATE_NORMAL)
+
+    def push(self, direction):
+        if self.state == self.STATE_NORMAL:
+            self.direction = direction
+            self.setState(self.STATE_PUSHED)
+
 class Pingoo(PhysicsSprite):
     """The pingoo/player class"""
     def __init__(self, l, c):
@@ -277,7 +311,19 @@ def enter():
         tableau.append(ligne1)
     ligne0 = [ "b" ] * cmax
     tableau.append(ligne0)
+    
+    # room for the player
     tableau[lmax / 2][cmax / 2] = "."
+    
+    # create diamonds
+    n = 0
+    while n < 3:
+        l = random.randrange(0, lmax / 2 - 1) * 2 + 2
+        c = random.randrange(0, cmax / 2 - 1) * 2 + 2
+        if tableau[l][c] == "X":
+            continue
+        tableau[l][c] = "X"
+        n += 1
 
     #define sprites
     for l in range(lmax):
@@ -287,6 +333,8 @@ def enter():
                 labyrinth.add(Border(l, c))
             if p is "x":
                 labyrinth.add(Block(l, c))
+            if p is "X":
+                labyrinth.add(Diamond(l, c))
 
     global nextT, deltaT
     nextT = pygame.time.get_ticks() + deltaT
