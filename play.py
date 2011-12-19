@@ -246,7 +246,7 @@ class Diamond(PhysicsSprite):
 class Pingoo(PhysicsSprite):
     """The pingoo/player class"""
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'tux.png', ALPHA, 1, 250.0)
+        PhysicsSprite.__init__(self, l, c, 'tuxnoel.png', ALPHA, 1, 250.0)
         self.pushing = False
 
     def updateTarget(self):
