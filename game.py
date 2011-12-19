@@ -1,6 +1,5 @@
 import os
 import pygame
-from pygame.locals import RLEACCEL
 
 # Define the colors we will use in RGB format
 black = [  0,  0,  0]
@@ -23,9 +22,9 @@ yorigin = 60
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption("PyGame Example - Alain Basty")
 
-MOTIONTICK = pygame.USEREVENT
-COLORKEY_AUTO = -1
-ALPHA = -2
+TRANSPARENCY_COLORKEY_AUTO = -1
+TRANSPARENCY_ALPHA = -2
+TRANSPARENCY_NONE = None
 
 # input
 INPUT_MOUSE = 0
@@ -43,19 +42,16 @@ def load_image(name, colorkey, n = 1):
     except pygame.error, message:
         print 'Cannot load image:', name
         raise SystemExit, message
-    if colorkey is ALPHA:
+    if colorkey is TRANSPARENCY_ALPHA:
         image = image.convert_alpha()
     else:
         image = image.convert()
         if colorkey is not None:
-            if colorkey is COLORKEY_AUTO:
+            if colorkey is TRANSPARENCY_COLORKEY_AUTO:
                 colorkey = image.get_at((0, 0))
-            image.set_colorkey(colorkey, RLEACCEL)
+            image.set_colorkey(colorkey, pygame.RLEACCEL)
 
     r = image.get_rect()
     r.w = r.w / n
-    
-    return image, r
 
-class Object:
-    pass
+    return image, r

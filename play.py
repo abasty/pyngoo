@@ -3,7 +3,7 @@
 import random
 import pygame
 import math
-from game import screen, load_image, xorigin, yorigin, ALPHA, COLORKEY_AUTO, inputMode, INPUT_KEYBOARD, INPUT_MOUSE
+from game import *
 
 back = pygame.image.load("media/playbackground.png").convert()
 
@@ -160,7 +160,7 @@ class Block(PhysicsSprite):
     STATE_DYING = 3
 
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'glacon-animated.png', COLORKEY_AUTO, 8, 500.0)
+        PhysicsSprite.__init__(self, l, c, 'glacon-animated.png', TRANSPARENCY_COLORKEY_AUTO, 8, 500.0)
 
     def updateTarget(self):
         if self.direction == DIRECTION_NONE:
@@ -204,7 +204,7 @@ class Block(PhysicsSprite):
 class Border(PhysicsSprite):
     """The class to represent a border block"""
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'igloo.jpg', None, 1, 1.0)
+        PhysicsSprite.__init__(self, l, c, 'igloo.jpg', TRANSPARENCY_NONE, 1, 1.0)
 
     def update(self, t):
         pass
@@ -215,7 +215,7 @@ class Diamond(PhysicsSprite):
     STATE_PUSHED = 2
 
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'gift.png', ALPHA, 1, 500.0)
+        PhysicsSprite.__init__(self, l, c, 'gift.png', TRANSPARENCY_ALPHA, 1, 500.0)
 
     def updateTarget(self):
         if self.direction == DIRECTION_NONE:
@@ -246,7 +246,7 @@ class Diamond(PhysicsSprite):
 class Pingoo(PhysicsSprite):
     """The pingoo/player class"""
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'santa.png', ALPHA, 1, 250.0)
+        PhysicsSprite.__init__(self, l, c, 'santa.png', TRANSPARENCY_ALPHA, 1, 250.0)
         self.pushing = False
 
     def updateTarget(self):
