@@ -215,7 +215,7 @@ class Diamond(PhysicsSprite):
     STATE_PUSHED = 2
 
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'diamond.png', None, 1, 500.0)
+        PhysicsSprite.__init__(self, l, c, 'gift.png', ALPHA, 1, 500.0)
 
     def updateTarget(self):
         if self.direction == DIRECTION_NONE:
@@ -246,7 +246,7 @@ class Diamond(PhysicsSprite):
 class Pingoo(PhysicsSprite):
     """The pingoo/player class"""
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'tuxnoel.png', ALPHA, 1, 250.0)
+        PhysicsSprite.__init__(self, l, c, 'santa.png', ALPHA, 1, 250.0)
         self.pushing = False
 
     def updateTarget(self):
