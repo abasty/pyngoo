@@ -3,7 +3,7 @@
 import random
 import pygame
 import math
-from game import screen, load_image, xorigin, yorigin, ALPHA, COLORKEY_AUTO
+from game import screen, load_image, xorigin, yorigin, ALPHA, COLORKEY_AUTO, inputMode, INPUT_KEYBOARD, INPUT_MOUSE
 
 back = pygame.image.load("media/playbackground.png").convert()
 
@@ -252,24 +252,37 @@ class Pingoo(PhysicsSprite):
     def updateTarget(self):
         # TODO: use something like int(self.target.y / self.rect.h + 1) * self.rect.h
         # TODO: a method like PhysicsSprite.setTargetFromPositionDirection()
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_UP]:
+
+        if inputMode == INPUT_KEYBOARD:
+            keys = pygame.key.get_pressed()
+            up = keys[pygame.K_UP]
+            down = keys[pygame.K_DOWN]
+            left = keys[pygame.K_LEFT]
+            right = keys[pygame.K_RIGHT]
+            self.pushing = keys[pygame.K_SPACE]
+        elif inputMode == INPUT_MOUSE:
+            mouseX, mouseY = pygame.mouse.get_pos()
+            up = self.rect.centery - mouseY > self.rect.h / 1.5
+            down = mouseY - self.rect.centery > self.rect.h / 1.5
+            left = self.rect.centerx - mouseX > self.rect.w / 1.5
+            right = mouseX - self.rect.centerx> self.rect.w / 1.5
+            self.pushing = pygame.mouse.get_pressed()[0]
+        
+        if up:
             self.target.y -= self.rect.h
             self.direction = DIRECTION_UP
-        elif keys[pygame.K_DOWN]:
+        elif down:
             self.target.y += self.rect.h
             self.direction = DIRECTION_DOWN
-        elif keys[pygame.K_LEFT]:
+        elif left:
             self.target.x -= self.rect.w
             self.direction = DIRECTION_LEFT
-        elif keys[pygame.K_RIGHT]:
+        elif right:
             self.target.x += self.rect.w
             self.direction = DIRECTION_RIGHT
         else:
             self.target = Vector2d(self.position.x, self.position.y)
             self.direction = DIRECTION_NONE
-
-        self.pushing = keys[pygame.K_SPACE]
 
     def update(self, t):
         self.updatePhysics()
@@ -338,6 +351,9 @@ def enter():
 
     global nextT, deltaT
     nextT = pygame.time.get_ticks() + deltaT
+    
+    if inputMode == INPUT_MOUSE:
+        pygame.mouse.set_pos(pingoo.rect.centerx, pingoo.rect.centery)
 
 def leave():
     global labyrinth, player, pingoo
