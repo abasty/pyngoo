@@ -301,7 +301,7 @@ def enter():
     global labyrinth, player, pingoo
 
     pygame.mixer.music.load("media/jingle-bells.ogg")
-    pygame.mixer.music.play()
+    pygame.mixer.music.play(-1)
 
     labyrinth = pygame.sprite.LayeredDirty()
     pingoo = Pingoo(lmax / 2, cmax / 2)
