@@ -250,9 +250,6 @@ class Pingoo(PhysicsSprite):
         self.pushing = False
 
     def updateTarget(self):
-        # TODO: use something like int(self.target.y / self.rect.h + 1) * self.rect.h
-        # TODO: a method like PhysicsSprite.setTargetFromPositionDirection()
-
         if inputMode == INPUT_KEYBOARD:
             keys = pygame.key.get_pressed()
             up = keys[pygame.K_UP]
@@ -262,12 +259,15 @@ class Pingoo(PhysicsSprite):
             self.pushing = keys[pygame.K_SPACE]
         elif inputMode == INPUT_MOUSE:
             mouseX, mouseY = pygame.mouse.get_pos()
-            up = self.rect.centery - mouseY > self.rect.h / 1.5
-            down = mouseY - self.rect.centery > self.rect.h / 1.5
-            left = self.rect.centerx - mouseX > self.rect.w / 1.5
-            right = mouseX - self.rect.centerx> self.rect.w / 1.5
+            lmax = 15
+            up = pygame.Rect(self.rect.left, self.rect.top - lmax * self.rect.h, self.rect.w, lmax * self.rect.h).collidepoint(mouseX, mouseY)
+            down = pygame.Rect(self.rect.left, self.rect.top + self.rect.h, self.rect.w, lmax * self.rect.h).collidepoint(mouseX, mouseY)
+            left = pygame.Rect(self.rect.left - lmax * self.rect.w, self.rect.top, lmax * self.rect.w, self.rect.h).collidepoint(mouseX, mouseY)
+            right = pygame.Rect(self.rect.left + self.rect.w, self.rect.top, lmax * self.rect.w, self.rect.h).collidepoint(mouseX, mouseY)
             self.pushing = pygame.mouse.get_pressed()[0]
-        
+
+        # TODO: use something like int(self.target.y / self.rect.h + 1) * self.rect.h
+        # TODO: a method like PhysicsSprite.setTargetFromPositionDirection()
         if up:
             self.target.y -= self.rect.h
             self.direction = DIRECTION_UP
