@@ -299,6 +299,10 @@ def init():
 
 def enter():
     global labyrinth, player, pingoo
+
+    pygame.mixer.music.load("media/jingle-bells.ogg")
+    pygame.mixer.music.play()
+
     labyrinth = pygame.sprite.LayeredDirty()
     pingoo = Pingoo(lmax / 2, cmax / 2)
     player = pygame.sprite.LayeredDirty(pingoo)
@@ -360,6 +364,7 @@ def leave():
     labyrinth.empty()
     player.empty()
     del pingoo
+    pygame.mixer.music.stop()
 
 # Event callback
 def event(event):
