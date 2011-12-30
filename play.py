@@ -1,7 +1,7 @@
 # This module defines the play state
 
 import random
-import pygame
+from pygame import Rect
 import math
 from game import *
 
@@ -18,6 +18,9 @@ DIRECTION_UP = 1
 DIRECTION_DOWN = 2
 DIRECTION_LEFT = 3
 DIRECTION_RIGHT = 4
+
+limits = Rect(xorigin, yorigin, cmax * 40, lmax * 40)
+gamezone = limits.inflate(-40 * 2, -40 * 2)
 
 def pixelsPerSecondToSpeedUnit(pxBysec):
     return pxBysec * deltaT / 1000.0
@@ -298,7 +301,7 @@ def init():
     pass
 
 def enter():
-    global labyrinth, player, pingoo
+    global labyrinth, player, pingoo, diamonds
 
     pygame.mixer.music.load("media/jingle-bells.ogg")
     pygame.mixer.music.play(-1)
@@ -306,6 +309,7 @@ def enter():
     labyrinth = pygame.sprite.LayeredDirty()
     pingoo = Pingoo(lmax / 2, cmax / 2)
     player = pygame.sprite.LayeredDirty(pingoo)
+    diamonds = pygame.sprite.LayeredDirty()
 
     # Labyrinth
     tableau = []
@@ -347,11 +351,11 @@ def enter():
         for c in range(cmax):
             p = tableau[l][c]
             if p is "b":
-                labyrinth.add(Border(l, c))
+                Border(l, c).add(labyrinth)
             if p is "x":
-                labyrinth.add(Block(l, c))
+                Block(l, c).add(labyrinth)
             if p is "X":
-                labyrinth.add(Diamond(l, c))
+                Diamond(l, c).add(labyrinth, diamonds)
 
     global nextT, deltaT
     nextT = pygame.time.get_ticks() + deltaT
@@ -360,12 +364,32 @@ def enter():
         pygame.mouse.set_pos(pingoo.rect.centerx, pingoo.rect.centery)
 
 def leave():
-    global labyrinth, player, pingoo
+    global labyrinth, player, pingoo, diamonds
     labyrinth.empty()
+    diamonds.empty()
     player.empty()
     del pingoo
     pygame.mixer.music.stop()
 
+def aligned():
+    d = diamonds.sprites()
+    r0 = pygame.Rect(d[0].rect)
+    u = r0.unionall((d[1].rect, d[2].rect))
+    if u.w == r0.w and u.h == r0.h * 3:
+        # vertical
+        result = 1
+        if u.top != gamezone.top and u.bottom != gamezone.bottom:
+            result += 1
+    elif u.h == r0.h and u.w == 3 * r0.w:
+        # horizontal
+        result = 1
+        if u.left != gamezone.left and u.right != gamezone.right:
+            result += 1
+    else:
+        # none
+        result = 0
+    return result
+    
 # Event callback
 def event(event):
     if event.type == pygame.KEYDOWN:
@@ -385,5 +409,6 @@ def draw():
         nextT += deltaT
     labyrinth.draw(screen)
     player.draw(screen)
+    print aligned()
 
 init()
