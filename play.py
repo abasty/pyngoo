@@ -164,6 +164,7 @@ class Block(PhysicsSprite):
 
     def __init__(self, l, c):
         PhysicsSprite.__init__(self, l, c, 'glacon-animated.png', TRANSPARENCY_COLORKEY_AUTO, 8, 500.0)
+        self.sound = pygame.mixer.Sound("media/ice.ogg")
 
     def updateTarget(self):
         if self.direction == DIRECTION_NONE:
@@ -183,6 +184,7 @@ class Block(PhysicsSprite):
             hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
             if len(hit) == 1:
                 self.setState(self.STATE_PUSHED)
+                self.sound.play(-1)
                 return
             self.cancelPhysics()
             self.setState(self.STATE_DYING)
@@ -194,6 +196,7 @@ class Block(PhysicsSprite):
                 return
             self.cancelPhysics()
             self.setState(self.STATE_NORMAL)
+            self.sound.stop()
         elif self.state == self.STATE_DYING:
             self.updateAnimation(t)
             if self.currentIndex < 0:
