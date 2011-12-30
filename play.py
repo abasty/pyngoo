@@ -180,7 +180,7 @@ class Block(PhysicsSprite):
     def update(self, t):
         if self.state == self.STATE_JUST_PUSHED:
             self.updatePhysics()
-            hit = pygame.sprite.spritecollide(self, labyrinth, False)
+            hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
             if len(hit) == 1:
                 self.setState(self.STATE_PUSHED)
                 return
@@ -189,7 +189,7 @@ class Block(PhysicsSprite):
             self.startAnimation(t, range(1, 8), 25)
         elif self.state == self.STATE_PUSHED:
             self.updatePhysics()
-            hit = pygame.sprite.spritecollide(self, labyrinth, False)
+            hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
             if len(hit) == 1:
                 return
             self.cancelPhysics()
@@ -223,14 +223,14 @@ class Diamond(PhysicsSprite):
     @classmethod
     def aligned(cls):
         global diamonds
-        d = diamonds.sprites()
+        d = playscreen.diamonds.sprites()
         r0 = pygame.Rect(d[0].rect)
         u = r0.unionall((d[1].rect, d[2].rect))
         if (u.w != r0.w or u.h != r0.h * 3) and (u.h != r0.h or u.w != 3 * r0.w):
-            return 0 
-        if u.top != gamezone.top and u.bottom != gamezone.bottom and u.left != gamezone.left and u.right != gamezone.right:
-            return 2
-        return 1
+            return 0, u
+        if u.top == gamezone.top or u.bottom == gamezone.bottom or u.left == gamezone.left or u.right == gamezone.right:
+            return 1, u
+        return 2, u
 
     def updateTarget(self):
         if self.direction == DIRECTION_NONE:
@@ -247,13 +247,14 @@ class Diamond(PhysicsSprite):
     def update(self, t):
         if self.state == self.STATE_PUSHED:
             self.updatePhysics()
-            hit = pygame.sprite.spritecollide(self, labyrinth, False)
+            hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
             if len(hit) == 1:
                 return
             self.cancelPhysics()
             self.setState(self.STATE_NORMAL)
-            print Diamond.aligned()
-
+            a,r = self.aligned()
+            playscreen.endTest(a)
+                
     def push(self, direction):
         if self.state == self.STATE_NORMAL:
             self.direction = direction
@@ -266,7 +267,13 @@ class Pingoo(PhysicsSprite):
         self.pushing = False
 
     def updateTarget(self):
-        if inputMode == INPUT_KEYBOARD:
+        if playscreen.ending:
+            up = False
+            down = False
+            left = False
+            right = False
+            self.pushing = False
+        elif inputMode == INPUT_KEYBOARD:
             keys = pygame.key.get_pressed()
             up = keys[pygame.K_UP]
             down = keys[pygame.K_DOWN]
@@ -302,86 +309,90 @@ class Pingoo(PhysicsSprite):
 
     def update(self, t):
         self.updatePhysics()
-        hit = pygame.sprite.spritecollide(self, labyrinth, False)
+        hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
         if not hit:
             return
         if self.pushing:
             hit[0].push(self.direction)
         self.cancelPhysics()
 
-# Initialization
-def init():
-    pass
+class PlayScreen:
 
+    def __init__(self):
+
+        self.labyrinth = pygame.sprite.LayeredDirty()
+        self.pingoo = Pingoo(lmax / 2, cmax / 2)
+        self.player = pygame.sprite.LayeredDirty(self.pingoo)
+        self.diamonds = pygame.sprite.LayeredDirty()
+
+        # Labyrinth
+        tableau = []
+        ligne0 = [ "b" ] * cmax
+        tableau.append(ligne0)
+        for l in range(lmax / 2):
+            ligne0 = [ "b" ]
+            ligne1 = [ "b" ]
+            for c in range(cmax / 2):
+                r = random.choice(["xx..", "xx..", "x.x.", "x.x.", "x..."])
+                if c > 0:
+                    ligne0.append(r[0])
+                    ligne1.append(r[2])
+                ligne0.append(r[1])
+                ligne1.append(r[3])
+            ligne0.append("b")
+            ligne1.append("b")
+            if l > 0:
+                tableau.append(ligne0)
+            tableau.append(ligne1)
+        ligne0 = [ "b" ] * cmax
+        tableau.append(ligne0)
+        
+        # room for the player
+        tableau[lmax / 2][cmax / 2] = "."
+        
+        # create diamonds
+        n = 0
+        while n < 3:
+            l = random.randrange(0, lmax / 2 - 1) * 2 + 2
+            c = random.randrange(0, cmax / 2 - 1) * 2 + 2
+            if tableau[l][c] == "X":
+                continue
+            tableau[l][c] = "X"
+            n += 1
+    
+        #define sprites
+        for l in range(lmax):
+            for c in range(cmax):
+                p = tableau[l][c]
+                if p is "b":
+                    Border(l, c).add(self.labyrinth)
+                if p is "x":
+                    Block(l, c).add(self.labyrinth)
+                if p is "X":
+                    Diamond(l, c).add(self.labyrinth, self.diamonds)
+    
+        global nextT, deltaT
+        nextT = pygame.time.get_ticks() + deltaT
+        
+        if inputMode == INPUT_MOUSE:
+            pygame.mouse.set_pos(self.pingoo.rect.centerx, self.pingoo.rect.centery)
+
+        self.ending = None
+
+    def endTest(self, a):
+        if a > 0:
+            pygame.mixer.music.load("media/jingle-bells.ogg")
+            pygame.mixer.music.play(-1)
+            self.ending = a
+        pass
+    
 def enter():
-    global labyrinth, player, pingoo, diamonds
-
-    pygame.mixer.music.load("media/jingle-bells.ogg")
-    pygame.mixer.music.play(-1)
-
-    labyrinth = pygame.sprite.LayeredDirty()
-    pingoo = Pingoo(lmax / 2, cmax / 2)
-    player = pygame.sprite.LayeredDirty(pingoo)
-    diamonds = pygame.sprite.LayeredDirty()
-
-    # Labyrinth
-    tableau = []
-    ligne0 = [ "b" ] * cmax
-    tableau.append(ligne0)
-    for l in range(lmax / 2):
-        ligne0 = [ "b" ]
-        ligne1 = [ "b" ]
-        for c in range(cmax / 2):
-            r = random.choice(["xx..", "xx..", "x.x.", "x.x.", "x..."])
-            if c > 0:
-                ligne0.append(r[0])
-                ligne1.append(r[2])
-            ligne0.append(r[1])
-            ligne1.append(r[3])
-        ligne0.append("b")
-        ligne1.append("b")
-        if l > 0:
-            tableau.append(ligne0)
-        tableau.append(ligne1)
-    ligne0 = [ "b" ] * cmax
-    tableau.append(ligne0)
-    
-    # room for the player
-    tableau[lmax / 2][cmax / 2] = "."
-    
-    # create diamonds
-    n = 0
-    while n < 3:
-        l = random.randrange(0, lmax / 2 - 1) * 2 + 2
-        c = random.randrange(0, cmax / 2 - 1) * 2 + 2
-        if tableau[l][c] == "X":
-            continue
-        tableau[l][c] = "X"
-        n += 1
-
-    #define sprites
-    for l in range(lmax):
-        for c in range(cmax):
-            p = tableau[l][c]
-            if p is "b":
-                Border(l, c).add(labyrinth)
-            if p is "x":
-                Block(l, c).add(labyrinth)
-            if p is "X":
-                Diamond(l, c).add(labyrinth, diamonds)
-
-    global nextT, deltaT
-    nextT = pygame.time.get_ticks() + deltaT
-    
-    if inputMode == INPUT_MOUSE:
-        pygame.mouse.set_pos(pingoo.rect.centerx, pingoo.rect.centery)
+    global playscreen
+    playscreen = PlayScreen()
 
 def leave():
-    global labyrinth, player, pingoo, diamonds
-    labyrinth.empty()
-    diamonds.empty()
-    player.empty()
-    del pingoo
+    global playscreen
+    del playscreen
     pygame.mixer.music.stop()
 
 # Event callback
@@ -393,16 +404,21 @@ def event(event):
 
 # Draw callback
 def draw():
-    global nextT, deltaT, labyrinth, player
+    global nextT, deltaT, playscreen
     t = pygame.time.get_ticks()
-    labyrinth.clear(screen, back)
-    player.clear(screen, back)
+    playscreen.labyrinth.clear(screen, back)
+    playscreen.player.clear(screen, back)
     while t >= nextT:
-        player.update(t)
-        labyrinth.update(t)
+        playscreen.player.update(t)
+        playscreen.labyrinth.update(t)
         nextT += deltaT
-    _res = labyrinth.draw(screen)
-    _res = _res + player.draw(screen)
+    _res = playscreen.labyrinth.draw(screen)
+    _res = _res + playscreen.player.draw(screen)
+    
+    if playscreen.ending:
+        font = pygame.font.Font(None, 100)
+        img = font.render("Well Done !", True, [random.randrange(256), random.randrange(256), random.randrange(256)])
+        w, h = img.get_size()
+        screen.blit(img, [ gamezone.centerx - w / 2, gamezone.centery - h / 2 ])
+    
     return _res
-
-init()
