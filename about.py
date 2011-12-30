@@ -3,7 +3,7 @@ import pygame
 import game
 
 title = "About"
-font = pygame.font.Font(None, 50) 
+font = pygame.font.Font(None, 50)
 
 # Initialization
 def init():
