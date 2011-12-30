@@ -27,11 +27,13 @@ def init():
         Y += fontSize
 
 def enter():
-    pygame.mixer.music.load("media/7884.ogg")
-    pygame.mixer.music.play()
-    
+    #pygame.mixer.music.load("media/7884.ogg")
+    #pygame.mixer.music.play()
+    pass
+
 def leave():
-    pygame.mixer.music.stop()
+    #pygame.mixer.music.stop()
+    pass
 
 # Event callback
 def event(event):

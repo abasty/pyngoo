@@ -165,6 +165,7 @@ class Block(PhysicsSprite):
     def __init__(self, l, c):
         PhysicsSprite.__init__(self, l, c, 'glacon-animated.png', TRANSPARENCY_COLORKEY_AUTO, 8, 500.0)
         self.sound = pygame.mixer.Sound("media/ice.ogg")
+        self.soundbreak = pygame.mixer.Sound("media/glassbroken.wav")
 
     def updateTarget(self):
         if self.direction == DIRECTION_NONE:
@@ -188,6 +189,7 @@ class Block(PhysicsSprite):
                 return
             self.cancelPhysics()
             self.setState(self.STATE_DYING)
+            self.soundbreak.play()
             self.startAnimation(t, range(1, 8), 25)
         elif self.state == self.STATE_PUSHED:
             self.updatePhysics()
