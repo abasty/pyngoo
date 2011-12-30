@@ -30,13 +30,13 @@ class Vector2d:
     def __init__(self, x = 0.0, y = 0.0):
         self.x = x
         self.y = y
-        
+
     def __add__(self, other):
         return Vector2d(self.x + other.x, self.y + other.y)
 
     def __sub__(self, other):
         return Vector2d(self.x - other.x, self.y - other.y)
-    
+
     def __eq__(self,other):
         return self.x == other.x and self.y == other.y
 
@@ -90,15 +90,15 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
     def setAnimationFrame(self, n):
         self.currentFrame = n
         self.source_rect.left = n * self.source_rect.w
-    
+
     def startAnimation(self, t, frames, frameRate, loopAnimation = False):
         self.frames = frames
-        self.framesCount = len(self.frames) 
+        self.framesCount = len(self.frames)
         self.currentIndex = 0
         self.nextFrameT = t
         self.deltaFrameT = 1000.0 / frameRate
         self.loopAnimation = loopAnimation
-    
+
     def updateAnimation(self, t):
         if self.currentIndex < 0:
             return
@@ -351,10 +351,10 @@ class PlayScreen:
             tableau.append(ligne1)
         ligne0 = [ "b" ] * cmax
         tableau.append(ligne0)
-        
+
         # room for the player
         tableau[lmax / 2][cmax / 2] = "."
-        
+
         # create diamonds
         n = 0
         while n < 3:
@@ -364,7 +364,7 @@ class PlayScreen:
                 continue
             tableau[l][c] = "X"
             n += 1
-    
+
         #define sprites
         for l in range(lmax):
             for c in range(cmax):
@@ -375,10 +375,10 @@ class PlayScreen:
                     Block(l, c).add(self.labyrinth)
                 if p is "X":
                     Diamond(l, c).add(self.labyrinth, self.diamonds)
-    
+
         global nextT, deltaT
         nextT = pygame.time.get_ticks() + deltaT
-        
+
         if inputMode == INPUT_MOUSE:
             pygame.mouse.set_pos(self.pingoo.rect.centerx, self.pingoo.rect.centery)
 
@@ -390,7 +390,7 @@ class PlayScreen:
             pygame.mixer.music.play(-1)
             self.ending = a
         pass
-    
+
 def enter():
     global playscreen
     playscreen = PlayScreen()
@@ -419,11 +419,11 @@ def draw():
         nextT += deltaT
     _res = playscreen.labyrinth.draw(screen)
     _res = _res + playscreen.player.draw(screen)
-    
+
     if playscreen.ending:
         font = pygame.font.Font(None, 100)
         img = font.render("Well Done !", True, [random.randrange(256), random.randrange(256), random.randrange(256)])
         w, h = img.get_size()
         screen.blit(img, [ gamezone.centerx - w / 2, gamezone.centery - h / 2 ])
-    
+
     return _res

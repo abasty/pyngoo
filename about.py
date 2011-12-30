@@ -26,5 +26,5 @@ def event(event):
 def draw():
     game.screen.fill([255, 0, 255])
     game.screen.blit(font.render(title, True, [0, 0, 0]), [0, 0])
-    
+
 init()

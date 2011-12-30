@@ -19,7 +19,7 @@ def init():
         extents = font.size(item)
         if extents[0] > maxWidth:
             maxWidth = extents[0]
-    
+
     X = (game.size[0] - maxWidth) / 2;
     Y = (game.size[1] - len(menu) * fontSize) / 2;
     for item in menu:

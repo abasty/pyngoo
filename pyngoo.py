@@ -48,7 +48,6 @@ while not done:
                 enterScreen(setup)
             elif trans == "About":
                 enterScreen(about)
-                
     if done:
         break
 
