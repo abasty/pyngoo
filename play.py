@@ -220,6 +220,18 @@ class Diamond(PhysicsSprite):
     def __init__(self, l, c):
         PhysicsSprite.__init__(self, l, c, 'gift.png', TRANSPARENCY_ALPHA, 1, 500.0)
 
+    @classmethod
+    def aligned(cls):
+        global diamonds
+        d = diamonds.sprites()
+        r0 = pygame.Rect(d[0].rect)
+        u = r0.unionall((d[1].rect, d[2].rect))
+        if (u.w != r0.w or u.h != r0.h * 3) and (u.h != r0.h or u.w != 3 * r0.w):
+            return 0 
+        if u.top != gamezone.top and u.bottom != gamezone.bottom and u.left != gamezone.left and u.right != gamezone.right:
+            return 2
+        return 1
+
     def updateTarget(self):
         if self.direction == DIRECTION_NONE:
             return
@@ -240,6 +252,7 @@ class Diamond(PhysicsSprite):
                 return
             self.cancelPhysics()
             self.setState(self.STATE_NORMAL)
+            print Diamond.aligned()
 
     def push(self, direction):
         if self.state == self.STATE_NORMAL:
@@ -371,25 +384,6 @@ def leave():
     del pingoo
     pygame.mixer.music.stop()
 
-def aligned():
-    d = diamonds.sprites()
-    r0 = pygame.Rect(d[0].rect)
-    u = r0.unionall((d[1].rect, d[2].rect))
-    if u.w == r0.w and u.h == r0.h * 3:
-        # vertical
-        result = 1
-        if u.top != gamezone.top and u.bottom != gamezone.bottom:
-            result += 1
-    elif u.h == r0.h and u.w == 3 * r0.w:
-        # horizontal
-        result = 1
-        if u.left != gamezone.left and u.right != gamezone.right:
-            result += 1
-    else:
-        # none
-        result = 0
-    return result
-    
 # Event callback
 def event(event):
     if event.type == pygame.KEYDOWN:
@@ -409,7 +403,6 @@ def draw():
         nextT += deltaT
     _res = labyrinth.draw(screen)
     _res = _res + player.draw(screen)
-    print aligned()
     return _res
 
 init()
