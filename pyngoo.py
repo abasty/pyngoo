@@ -25,7 +25,7 @@ def handleScreenEvent(event):
 
 def drawScreen():
     global screen
-    screen.draw()
+    return screen.draw()
 
 enterScreen(play)
 
@@ -52,11 +52,14 @@ while not done:
     if done:
         break
 
-    # Draw current screen    
-    drawScreen()
+    # Draw current screen
+    dirty = drawScreen()
 
-    # Manage frame and frame rate
-    pygame.display.flip()
+    # Update screen
+    if dirty:
+        pygame.display.update(dirty)
+    else:
+        pygame.display.update()
 
 # Be IDLE friendly
 print "Ending game..."

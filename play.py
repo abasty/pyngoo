@@ -407,8 +407,9 @@ def draw():
         player.update(t)
         labyrinth.update(t)
         nextT += deltaT
-    labyrinth.draw(screen)
-    player.draw(screen)
+    _res = labyrinth.draw(screen)
+    _res = _res + player.draw(screen)
     print aligned()
+    return _res
 
 init()
