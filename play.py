@@ -90,6 +90,7 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
     def setAnimationFrame(self, n):
         self.currentFrame = n
         self.source_rect.left = n * self.source_rect.w
+        self.dirty = 1
 
     def startAnimation(self, t, frames, frameRate, loopAnimation = False):
         self.frames = frames
@@ -180,26 +181,35 @@ class Block(PhysicsSprite):
         elif self.direction == DIRECTION_RIGHT:
             self.target.x += self.rect.w
 
+    def updateFrame(self):
+        X = self.position.x - gamezone.left
+        S = int((X % 40) / 5)
+        self.setAnimationFrame(S + 0)
+        
     def update(self, t):
-        if self.state == self.STATE_JUST_PUSHED:
+        if self.state == self.STATE_NORMAL:
+            self.updateFrame()
+        elif self.state == self.STATE_JUST_PUSHED:
             self.updatePhysics()
             hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
             if len(hit) == 1:
                 self.setState(self.STATE_PUSHED)
+                self.updateFrame()
                 self.sound.play(-1)
-                self.startAnimation(t, range(1, 8), 20, True)
                 return
             self.cancelPhysics()
+            self.updateFrame()
             self.setState(self.STATE_DYING)
             self.soundbreak.play()
-            self.startAnimation(t, range(8, 12), 20)
+            self.startAnimation(t, range(8, 12), 15)
         elif self.state == self.STATE_PUSHED:
             self.updatePhysics()
-            self.updateAnimation(t)
+            self.updateFrame()
             hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
             if len(hit) == 1:
                 return
             self.cancelPhysics()
+            self.updateFrame()
             self.setState(self.STATE_NORMAL)
             self.sound.stop()
         elif self.state == self.STATE_DYING:
