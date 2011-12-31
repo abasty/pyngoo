@@ -163,7 +163,8 @@ class Block(PhysicsSprite):
     STATE_DYING = 3
 
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'glacon-animated.png', TRANSPARENCY_COLORKEY_AUTO, 8, 500.0)
+#        PhysicsSprite.__init__(self, l, c, 'glacon-animated.png', TRANSPARENCY_COLORKEY_AUTO, 8, 500.0)
+        PhysicsSprite.__init__(self, l, c, 'ball.png', TRANSPARENCY_ALPHA, 12, 500.0)
         self.sound = pygame.mixer.Sound("media/ice.ogg")
         self.soundbreak = pygame.mixer.Sound("media/glassbroken.wav")
 
@@ -186,13 +187,15 @@ class Block(PhysicsSprite):
             if len(hit) == 1:
                 self.setState(self.STATE_PUSHED)
                 self.sound.play(-1)
+                self.startAnimation(t, range(1, 8), 20, True)
                 return
             self.cancelPhysics()
             self.setState(self.STATE_DYING)
             self.soundbreak.play()
-            self.startAnimation(t, range(1, 8), 25)
+            self.startAnimation(t, range(8, 12), 20)
         elif self.state == self.STATE_PUSHED:
             self.updatePhysics()
+            self.updateAnimation(t)
             hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
             if len(hit) == 1:
                 return
