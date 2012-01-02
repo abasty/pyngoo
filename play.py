@@ -56,13 +56,14 @@ class Vector2d:
         return Vector2d(self.x / l * r, self.y / l * r)
 
 class CounterObject:
-    
+
     image = None
     fh = 26
     fw = 16
+    # TODO: offset step for individual digit fs = 4
     x = 0
     y = 0
-    
+
     def __init__(self, x, y, length):
         self.x = x
         self.y = y
@@ -482,5 +483,5 @@ def draw():
 
     # draw scores
     _res += playscreen.score.draw()
-    
+
     return _res
