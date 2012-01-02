@@ -6,7 +6,6 @@ import math
 from game import *
 
 back = pygame.image.load("media/playbackground.png").convert()
-numbers = pygame.image.load("media/numbers.png").convert_alpha()
 
 lmax = 13
 cmax = 19
@@ -55,6 +54,29 @@ class Vector2d:
     def normalize(self, r = 1.0):
         l = self.length()
         return Vector2d(self.x / l * r, self.y / l * r)
+
+class CounterObject:
+    
+    image = None
+    fh = 26
+    fw = 16
+    x = 0
+    y = 0
+    
+    def __init__(self, x, y, length):
+        self.x = x
+        self.y = y
+        self.length = length
+        self.number = 0
+        if self.image == None:
+            self.image = pygame.image.load("media/numbers.png").convert_alpha()
+    
+    def draw(self):
+        n = self.number
+        for c in range(self.length - 1, -1, -1):
+            d = n % 10
+            screen.blit(self.image, [10 + c * self.fw, 10], Rect(0, d * self.fh, self.image.get_width(), self.fh))
+            n = n // 10
 
 class PhysicsSprite(pygame.sprite.DirtySprite):
     """An object that implements simple 2d physics"""
@@ -389,6 +411,9 @@ class PlayScreen:
                     Block(l, c).add(self.labyrinth)
                 if p is "X":
                     Diamond(l, c).add(self.labyrinth, self.diamonds)
+        
+        # counters
+        self.score = CounterObject(10, 10, 6)
 
         global nextT, deltaT
         nextT = pygame.time.get_ticks() + deltaT
@@ -421,15 +446,6 @@ def event(event):
             return "Menu"
         return
 
-def drawScore():
-    n = 10
-    fh = 26
-    fw = 16
-    for c in range(5, -1, -1):
-        d = n % 10
-        screen.blit(numbers, [10 + c * fw, 10], Rect(0, d * fh, numbers.get_width(), fh))
-        n = n // 10
-
 # Draw callback
 def draw():
     global nextT, deltaT, playscreen
@@ -450,6 +466,6 @@ def draw():
         screen.blit(img, [ gamezone.centerx - w / 2, gamezone.centery - h / 2 ])
 
     # draw scores
-    drawScore()
+    playscreen.score.draw()
 
     return _res
