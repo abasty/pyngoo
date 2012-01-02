@@ -6,6 +6,7 @@ import math
 from game import *
 
 back = pygame.image.load("media/playbackground.png").convert()
+numbers = pygame.image.load("media/numbers.png").convert_alpha()
 
 lmax = 13
 cmax = 19
@@ -420,6 +421,15 @@ def event(event):
             return "Menu"
         return
 
+def drawScore():
+    n = 10
+    fh = 26
+    fw = 16
+    for c in range(5, -1, -1):
+        d = n % 10
+        screen.blit(numbers, [10 + c * fw, 10], Rect(0, d * fh, numbers.get_width(), fh))
+        n = n // 10
+
 # Draw callback
 def draw():
     global nextT, deltaT, playscreen
@@ -438,5 +448,8 @@ def draw():
         img = font.render("Well Done !", True, [random.randrange(256), random.randrange(256), random.randrange(256)])
         w, h = img.get_size()
         screen.blit(img, [ gamezone.centerx - w / 2, gamezone.centery - h / 2 ])
+
+    # draw scores
+    drawScore()
 
     return _res
