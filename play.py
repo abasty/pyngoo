@@ -67,16 +67,29 @@ class CounterObject:
         self.x = x
         self.y = y
         self.length = length
-        self.number = 0
+        self.value = 0
+        self.displayedValue = 0
+        self.rect = Rect(self.x, self.y, self.fw * self.length, self.fh)
         if self.image == None:
             self.image = pygame.image.load("media/numbers.png").convert_alpha()
-    
+
+    def setValue(self, value, step = 10):
+        self.value = value
+        self.step = step
+
     def draw(self):
-        n = self.number
+        delta = self.value - self.displayedValue
+        if delta > 0:
+            self.displayedValue += min(self.step, delta)
+        elif delta < 0:
+            self.displayedValue -= min(self.step, delta)
+        n = self.displayedValue
+        screen.blit(back, self.rect, self.rect)
         for c in range(self.length - 1, -1, -1):
             d = n % 10
-            screen.blit(self.image, [10 + c * self.fw, 10], Rect(0, d * self.fh, self.image.get_width(), self.fh))
+            screen.blit(self.image, [self.x + c * self.fw, self.y], Rect(0, d * self.fh, self.image.get_width(), self.fh))
             n = n // 10
+        return [ self.rect ]
 
 class PhysicsSprite(pygame.sprite.DirtySprite):
     """An object that implements simple 2d physics"""
@@ -422,6 +435,8 @@ class PlayScreen:
             pygame.mouse.set_pos(self.pingoo.rect.centerx, self.pingoo.rect.centery)
 
         self.ending = None
+        
+        self.score.setValue(10000, 3)
 
     def endTest(self, a):
         if a > 0:
@@ -466,6 +481,6 @@ def draw():
         screen.blit(img, [ gamezone.centerx - w / 2, gamezone.centery - h / 2 ])
 
     # draw scores
-    playscreen.score.draw()
-
+    _res += playscreen.score.draw()
+    
     return _res
