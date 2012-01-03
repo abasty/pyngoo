@@ -5,7 +5,7 @@ from pygame import Rect
 import math
 from game import *
 
-back = pygame.image.load("media/playbackground.png").convert()
+back = pygame.image.load("media/background.png").convert()
 
 lmax = 13
 cmax = 19
@@ -77,6 +77,9 @@ class CounterObject:
     def setValue(self, value, step = 10):
         self.value = value
         self.step = step
+
+    def addValue(self, delta, step = 10):
+        self.setValue(self.value + delta, step)
 
     def draw(self):
         delta = self.value - self.displayedValue
@@ -253,6 +256,7 @@ class Block(PhysicsSprite):
             self.updateAnimation(t)
             if self.currentIndex < 0:
                 self.kill()
+                playscreen.score.addValue(10, 1)
 
     def push(self, direction):
         if self.state == self.STATE_NORMAL:
@@ -425,9 +429,9 @@ class PlayScreen:
                     Block(l, c).add(self.labyrinth)
                 if p is "X":
                     Diamond(l, c).add(self.labyrinth, self.diamonds)
-        
+
         # counters
-        self.score = CounterObject(10, 10, 6)
+        self.score = CounterObject(352, 32, 6)
 
         global nextT, deltaT
         nextT = pygame.time.get_ticks() + deltaT
@@ -436,11 +440,10 @@ class PlayScreen:
             pygame.mouse.set_pos(self.pingoo.rect.centerx, self.pingoo.rect.centery)
 
         self.ending = None
-        
-        self.score.setValue(10000, 3)
 
     def endTest(self, a):
         if a > 0:
+            self.score.addValue(a * 5000, 25)
             pygame.mixer.music.load("media/jingle-bells.ogg")
             pygame.mixer.music.play(-1)
             self.ending = a
@@ -460,6 +463,8 @@ def event(event):
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_ESCAPE:
             return "Menu"
+        elif event.key == pygame.K_p:
+            pygame.image.save(screen, "pyngoo.png")
         return
 
 # Draw callback
