@@ -485,6 +485,7 @@ def draw():
         img = font.render("Well Done !", True, [random.randrange(256), random.randrange(256), random.randrange(256)])
         w, h = img.get_size()
         screen.blit(img, [ gamezone.centerx - w / 2, gamezone.centery - h / 2 ])
+        _res += [ Rect(gamezone.centerx - w / 2, gamezone.centery - h / 2, w, h) ]
 
     # draw scores
     _res += playscreen.score.draw()
