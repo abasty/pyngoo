@@ -19,8 +19,6 @@ class CounterObject:
     fh = 26
     fw = 16
     # TODO: offset step for individual digit fs = 4
-    x = 0
-    y = 0
 
     def __init__(self, x, y, length):
         self.x = x
@@ -60,11 +58,12 @@ class Block(PhysicsSprite):
     STATE_PUSHED = 2
     STATE_DYING = 3
 
+    sound = pygame.mixer.Sound("media/ice.ogg")
+    soundbreak = pygame.mixer.Sound("media/glassbroken.wav")
+
     def __init__(self, l, c):
 #        PhysicsSprite.__init__(self, l, c, 'glacon-animated.png', TRANSPARENCY_COLORKEY_AUTO, 8, 500.0)
         PhysicsSprite.__init__(self, l, c, 'ball.png', TRANSPARENCY_ALPHA, 12, 500.0)
-        self.sound = pygame.mixer.Sound("media/ice.ogg")
-        self.soundbreak = pygame.mixer.Sound("media/glassbroken.wav")
 
     def updateTarget(self):
         if self.direction == DIRECTION_NONE:
