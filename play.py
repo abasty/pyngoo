@@ -5,17 +5,90 @@ from pygame import Rect
 from game import *
 from  physics import *
 
-back = pygame.image.load("media/background.png").convert()
+class PlayScreen:
 
-lmax = 13
-cmax = 19
+    back = pygame.image.load("media/background.png").convert()
+    
+    lmax = 13
+    cmax = 19
+    
+    limits = Rect(xorigin, yorigin, cmax * 40, lmax * 40)
+    gamezone = limits.inflate(-40 * 2, -40 * 2)
 
-limits = Rect(xorigin, yorigin, cmax * 40, lmax * 40)
-gamezone = limits.inflate(-40 * 2, -40 * 2)
+    def __init__(self):
+
+        self.labyrinth = pygame.sprite.LayeredDirty()
+        self.pingoo = Pingoo(self.lmax / 2, self.cmax / 2)
+        self.player = pygame.sprite.LayeredDirty(self.pingoo)
+        self.diamonds = pygame.sprite.LayeredDirty()
+
+        # Labyrinth
+        tableau = []
+        ligne0 = [ "b" ] * self.cmax
+        tableau.append(ligne0)
+        for l in range(self.lmax / 2):
+            ligne0 = [ "b" ]
+            ligne1 = [ "b" ]
+            for c in range(self.cmax / 2):
+                r = random.choice(["xx..", "xx..", "x.x.", "x.x.", "x..."])
+                if c > 0:
+                    ligne0.append(r[0])
+                    ligne1.append(r[2])
+                ligne0.append(r[1])
+                ligne1.append(r[3])
+            ligne0.append("b")
+            ligne1.append("b")
+            if l > 0:
+                tableau.append(ligne0)
+            tableau.append(ligne1)
+        ligne0 = [ "b" ] * self.cmax
+        tableau.append(ligne0)
+
+        # room for the player
+        tableau[self.lmax / 2][self.cmax / 2] = "."
+
+        # create diamonds
+        n = 0
+        while n < 3:
+            l = random.randrange(0, self.lmax / 2 - 1) * 2 + 2
+            c = random.randrange(0, self.cmax / 2 - 1) * 2 + 2
+            if tableau[l][c] == "X":
+                continue
+            tableau[l][c] = "X"
+            n += 1
+
+        #define sprites
+        for l in range(self.lmax):
+            for c in range(self.cmax):
+                p = tableau[l][c]
+                if p is "b":
+                    Border(l, c).add(self.labyrinth)
+                if p is "x":
+                    Block(l, c).add(self.labyrinth)
+                if p is "X":
+                    Diamond(l, c).add(self.labyrinth, self.diamonds)
+
+        # counters
+        self.score = CounterObject(352, 32, 6)
+
+        Physics.t = pygame.time.get_ticks() + Physics.dt
+
+        if inputMode == INPUT_MOUSE:
+            pygame.mouse.set_pos(self.pingoo.rect.centerx, self.pingoo.rect.centery)
+
+        self.ending = None
+
+    def endTest(self, a):
+        if a > 0:
+            self.score.addValue(a * 5000, 25)
+            pygame.mixer.music.load("media/jingle-bells.ogg")
+            pygame.mixer.music.play(-1)
+            self.ending = a
+        pass
 
 class CounterObject:
 
-    image = None
+    image = pygame.image.load("media/numbers.png").convert_alpha()
     fh = 26
     fw = 16
     # TODO: offset step for individual digit fs = 4
@@ -27,8 +100,6 @@ class CounterObject:
         self.value = 0
         self.displayedValue = 0
         self.rect = Rect(self.x, self.y, self.fw * self.length, self.fh)
-        if self.image == None:
-            self.image = pygame.image.load("media/numbers.png").convert_alpha()
 
     def setValue(self, value, step = 10):
         self.value = value
@@ -44,7 +115,7 @@ class CounterObject:
         elif delta < 0:
             self.displayedValue -= min(self.step, delta)
         n = self.displayedValue
-        screen.blit(back, self.rect, self.rect)
+        screen.blit(playscreen.back, self.rect, self.rect)
         for c in range(self.length - 1, -1, -1):
             d = n % 10
             screen.blit(self.image, [self.x + c * self.fw, self.y], Rect(0, d * self.fh, self.image.get_width(), self.fh))
@@ -78,10 +149,10 @@ class Block(PhysicsSprite):
             self.target.x += self.rect.w
 
     def updateFrame(self):
-        X = self.position.x - gamezone.left
+        X = self.position.x - playscreen.gamezone.left
         S = int((X % 40) / 5)
         self.setAnimationFrame(S + 0)
-        
+
     def update(self, t):
         if self.state == self.STATE_NORMAL:
             self.updateFrame()
@@ -143,7 +214,7 @@ class Diamond(PhysicsSprite):
         u = r0.unionall((d[1].rect, d[2].rect))
         if (u.w != r0.w or u.h != r0.h * 3) and (u.h != r0.h or u.w != 3 * r0.w):
             return 0, u
-        if u.top == gamezone.top or u.bottom == gamezone.bottom or u.left == gamezone.left or u.right == gamezone.right:
+        if u.top == playscreen.gamezone.top or u.bottom == playscreen.gamezone.bottom or u.left == playscreen.gamezone.left or u.right == playscreen.gamezone.right:
             return 1, u
         return 2, u
 
@@ -231,79 +302,6 @@ class Pingoo(PhysicsSprite):
             hit[0].push(self.direction)
         self.cancelPhysics()
 
-class PlayScreen:
-
-    def __init__(self):
-
-        self.labyrinth = pygame.sprite.LayeredDirty()
-        self.pingoo = Pingoo(lmax / 2, cmax / 2)
-        self.player = pygame.sprite.LayeredDirty(self.pingoo)
-        self.diamonds = pygame.sprite.LayeredDirty()
-
-        # Labyrinth
-        tableau = []
-        ligne0 = [ "b" ] * cmax
-        tableau.append(ligne0)
-        for l in range(lmax / 2):
-            ligne0 = [ "b" ]
-            ligne1 = [ "b" ]
-            for c in range(cmax / 2):
-                r = random.choice(["xx..", "xx..", "x.x.", "x.x.", "x..."])
-                if c > 0:
-                    ligne0.append(r[0])
-                    ligne1.append(r[2])
-                ligne0.append(r[1])
-                ligne1.append(r[3])
-            ligne0.append("b")
-            ligne1.append("b")
-            if l > 0:
-                tableau.append(ligne0)
-            tableau.append(ligne1)
-        ligne0 = [ "b" ] * cmax
-        tableau.append(ligne0)
-
-        # room for the player
-        tableau[lmax / 2][cmax / 2] = "."
-
-        # create diamonds
-        n = 0
-        while n < 3:
-            l = random.randrange(0, lmax / 2 - 1) * 2 + 2
-            c = random.randrange(0, cmax / 2 - 1) * 2 + 2
-            if tableau[l][c] == "X":
-                continue
-            tableau[l][c] = "X"
-            n += 1
-
-        #define sprites
-        for l in range(lmax):
-            for c in range(cmax):
-                p = tableau[l][c]
-                if p is "b":
-                    Border(l, c).add(self.labyrinth)
-                if p is "x":
-                    Block(l, c).add(self.labyrinth)
-                if p is "X":
-                    Diamond(l, c).add(self.labyrinth, self.diamonds)
-
-        # counters
-        self.score = CounterObject(352, 32, 6)
-
-        Physics.t = pygame.time.get_ticks() + Physics.dt
-
-        if inputMode == INPUT_MOUSE:
-            pygame.mouse.set_pos(self.pingoo.rect.centerx, self.pingoo.rect.centery)
-
-        self.ending = None
-
-    def endTest(self, a):
-        if a > 0:
-            self.score.addValue(a * 5000, 25)
-            pygame.mixer.music.load("media/jingle-bells.ogg")
-            pygame.mixer.music.play(-1)
-            self.ending = a
-        pass
-
 def enter():
     global playscreen
     playscreen = PlayScreen()
@@ -325,8 +323,8 @@ def event(event):
 # Draw callback
 def draw():
     global playscreen
-    playscreen.labyrinth.clear(screen, back)
-    playscreen.player.clear(screen, back)
+    playscreen.labyrinth.clear(screen, playscreen.back)
+    playscreen.player.clear(screen, playscreen.back)
 
     # Run physics
     t = pygame.time.get_ticks()
@@ -342,8 +340,8 @@ def draw():
         font = pygame.font.Font(None, 100)
         img = font.render("Well Done !", True, [random.randrange(256), random.randrange(256), random.randrange(256)])
         w, h = img.get_size()
-        screen.blit(img, [ gamezone.centerx - w / 2, gamezone.centery - h / 2 ])
-        _res += [ Rect(gamezone.centerx - w / 2, gamezone.centery - h / 2, w, h) ]
+        screen.blit(img, [ playscreen.gamezone.centerx - w / 2, playscreen.gamezone.centery - h / 2 ])
+        _res += [ Rect(playscreen.gamezone.centerx - w / 2, playscreen.gamezone.centery - h / 2, w, h) ]
 
     # draw scores
     _res += playscreen.score.draw()
