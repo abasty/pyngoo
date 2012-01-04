@@ -151,7 +151,7 @@ class Block(PhysicsSprite):
     def updateFrame(self):
         X = self.position.x - playscreen.gamezone.left
         S = int((X % 40) / 5)
-        self.setAnimationFrame(S + 0)
+        self.setFrame(S + 0)
 
     def update(self, t):
         if self.state == self.STATE_NORMAL:
@@ -181,7 +181,7 @@ class Block(PhysicsSprite):
             self.sound.stop()
         elif self.state == self.STATE_DYING:
             self.updateAnimation(t)
-            if self.currentIndex < 0:
+            if self.animationStopped():
                 self.kill()
                 playscreen.score.addValue(10, 1)
 

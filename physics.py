@@ -66,6 +66,9 @@ class Physics:
     def pixelsPerSecondToSpeedUnit(self, pxBysec):
         return pxBysec * self.dt / 1000.0
 
+class PhysicsFrame:
+    pass
+
 class PhysicsSprite(pygame.sprite.DirtySprite):
     """An object that implements simple 2d physics"""
     STATE_NORMAL = 0
@@ -92,39 +95,42 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         self.direction = DIRECTION_NONE
         self.lastRect = self.rect
         self.state = self.STATE_NORMAL
+        self.frames = PhysicsFrame()
 
     def updateTarget(self):
         """This method computes new target given AI or key input
         It should be overridden in subclasses"""
         pass
 
-    def setAnimationFrame(self, n):
-        self.currentFrame = n
+    def setFrame(self, n):
         self.source_rect.left = n * self.source_rect.w
         self.dirty = 1
 
-    def startAnimation(self, t, frames, frameRate, loopAnimation = False):
-        self.frames = frames
-        self.framesCount = len(self.frames)
-        self.currentIndex = 0
-        self.nextFrameT = t
-        self.deltaFrameT = 1000.0 / frameRate
-        self.loopAnimation = loopAnimation
+    def startAnimation(self, t, frames, rate, loop = False):
+        self.frames.seq = frames
+        self.frames.count = len(frames)
+        self.frames.index = 0
+        self.frames.t = t
+        self.frames.dt = 1000.0 / rate
+        self.frames.loop = loop
 
     def updateAnimation(self, t):
-        if self.currentIndex < 0:
+        if self.frames.index < 0:
             return
-        while t > self.nextFrameT:
-            self.nextFrameT += self.deltaFrameT
-            self.currentIndex += 1
-        if self.currentIndex < self.framesCount:
-            self.setAnimationFrame(self.frames[self.currentIndex])
-        elif self.loopAnimation:
-            self.currentIndex = 0
-            self.setAnimationFrame(self.frames[0])
+        while t > self.frames.t:
+            self.frames.t += self.frames.dt
+            self.frames.index += 1
+        if self.frames.index < self.frames.count:
+            self.setFrame(self.frames.seq[self.frames.index])
+        elif self.frames.loop:
+            self.frames.index = 0
+            self.setFrame(self.frames.seq[0])
         else:
-            self.currentIndex = -1
+            self.frames.index = -1
         self.dirty = 1
+
+    def animationStopped(self):
+        return self.frames.index == -1
 
     def updatePhysics(self):
         # get target if needed
