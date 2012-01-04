@@ -8,6 +8,7 @@ from  physics import *
 class PlayScreen:
 
     level = 0
+    score = 0
 
     back = pygame.image.load("media/background.png").convert()
 
@@ -74,7 +75,8 @@ class PlayScreen:
                     Diamond(l, c).add(self.labyrinth, self.diamonds)
 
         # counters
-        self.score = CounterObject(352, 32, 6)
+        self.scoreDisplay = CounterObject(352, 32, 6)
+        self.scoreDisplay.value = PlayScreen.score
 
         Physics.t = pygame.time.get_ticks() + Physics.dt
 
@@ -83,13 +85,15 @@ class PlayScreen:
 
         self.ending = None
 
+    def __del__(self):
+        PlayScreen.score = self.scoreDisplay.value
+
     def endTest(self, a):
         if a > 0:
-            self.score.addValue(a * 5000, 25)
+            self.scoreDisplay.addValue(a * 5000, 25)
             pygame.mixer.music.load("media/jingle-bells.ogg")
             pygame.mixer.music.play(-1)
             self.ending = a
-        pass
 
 class CounterObject:
 
@@ -105,6 +109,7 @@ class CounterObject:
         self.value = 0
         self.displayedValue = 0
         self.rect = Rect(self.x, self.y, self.fw * self.length, self.fh)
+        self.step = 1000000
 
     def setValue(self, value, step = 10):
         self.value = value
@@ -188,7 +193,7 @@ class Block(PhysicsSprite):
             self.updateAnimation(t)
             if self.animationStopped():
                 self.kill()
-                playscreen.score.addValue(10, 1)
+                playscreen.scoreDisplay.addValue(10, 1)
 
     def push(self, direction):
         if self.state == self.STATE_NORMAL:
@@ -349,6 +354,6 @@ def draw():
         _res += [ Rect(playscreen.gamezone.centerx - w / 2, playscreen.gamezone.centery - h / 2, w, h) ]
 
     # draw scores
-    _res += playscreen.score.draw()
+    _res += playscreen.scoreDisplay.draw()
 
     return _res
