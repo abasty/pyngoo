@@ -7,15 +7,20 @@ from  physics import *
 
 class PlayScreen:
 
+    level = 0
+
     back = pygame.image.load("media/background.png").convert()
-    
+
     lmax = 13
     cmax = 19
-    
+
     limits = Rect(xorigin, yorigin, cmax * 40, lmax * 40)
     gamezone = limits.inflate(-40 * 2, -40 * 2)
 
     def __init__(self):
+
+        PlayScreen.level += 1
+        random.seed(PlayScreen.level)
 
         self.labyrinth = pygame.sprite.LayeredDirty()
         self.pingoo = Pingoo(self.lmax / 2, self.cmax / 2)
