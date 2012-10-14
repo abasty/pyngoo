@@ -146,7 +146,7 @@ class Block(PhysicsSprite):
 #        PhysicsSprite.__init__(self, l, c, 'glacon-animated.png', TRANSPARENCY_COLORKEY_AUTO, 8, 500.0)
         PhysicsSprite.__init__(self, l, c, 'ball.png', TRANSPARENCY_ALPHA, 40, 40, 500.0)
 
-    def updateTarget(self):
+    def updateTarget(self, t):
         if self.direction == DIRECTION_NONE:
             return
         elif self.direction == DIRECTION_UP:
@@ -167,7 +167,7 @@ class Block(PhysicsSprite):
         if self.state == self.STATE_NORMAL:
             self.updateFrame()
         elif self.state == self.STATE_JUST_PUSHED:
-            self.updatePhysics()
+            self.updatePhysics(t)
             hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
             if len(hit) == 1:
                 self.setState(self.STATE_PUSHED)
@@ -180,7 +180,7 @@ class Block(PhysicsSprite):
             self.soundbreak.play()
             self.startAnimation(t, range(8, 12), 15)
         elif self.state == self.STATE_PUSHED:
-            self.updatePhysics()
+            self.updatePhysics(t)
             self.updateFrame()
             hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
             if len(hit) == 1:
@@ -228,7 +228,7 @@ class Diamond(PhysicsSprite):
             return 1, u
         return 2, u
 
-    def updateTarget(self):
+    def updateTarget(self, t):
         if self.direction == DIRECTION_NONE:
             return
         elif self.direction == DIRECTION_UP:
@@ -242,7 +242,7 @@ class Diamond(PhysicsSprite):
 
     def update(self, t):
         if self.state == self.STATE_PUSHED:
-            self.updatePhysics()
+            self.updatePhysics(t)
             hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
             if len(hit) == 1:
                 return
@@ -264,7 +264,7 @@ class Monster(PhysicsSprite):
     def __init__(self, l, c):
         PhysicsSprite.__init__(self, l, c, 'gift.png', TRANSPARENCY_ALPHA, 40, 40, 500.0)
 
-    def updateTarget(self):
+    def updateTarget(self, t):
         if self.direction == DIRECTION_NONE:
             return
         elif self.direction == DIRECTION_UP:
@@ -278,7 +278,7 @@ class Monster(PhysicsSprite):
 
     def update(self, t):
         if self.state == self.STATE_PUSHED:
-            self.updatePhysics()
+            self.updatePhysics(t)
             hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
             if len(hit) == 1:
                 return
@@ -288,10 +288,12 @@ class Monster(PhysicsSprite):
 class Pingoo(PhysicsSprite):
     """The pingoo/player class"""
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'santa.png', TRANSPARENCY_ALPHA, 40, 40, 250.0)
+#        PhysicsSprite.__init__(self, l, c, 'santa.png', TRANSPARENCY_ALPHA, 40, 40, 250.0)
+        PhysicsSprite.__init__(self, l, c, 'monsters.png', TRANSPARENCY_COLORKEY_AUTO, 40, 40, 250.0)
         self.pushing = False
+        self.startAnimation(0, range(0, 3), 10, True)
 
-    def updateTarget(self):
+    def updateTarget(self, t):
         if playscreen.ending:
             up = False
             down = False
@@ -316,6 +318,7 @@ class Pingoo(PhysicsSprite):
 
         # TODO: use something like int(self.target.y / self.rect.h + 1) * self.rect.h
         # TODO: a method like PhysicsSprite.setTargetFromPositionDirection()
+        _old = self.direction
         if up:
             self.target.y -= self.rect.h
             self.direction = DIRECTION_UP
@@ -332,14 +335,27 @@ class Pingoo(PhysicsSprite):
             self.target = Vector2d(self.position.x, self.position.y)
             self.direction = DIRECTION_NONE
 
+        if _old != self.direction:
+            print _old, self.direction
+            if self.direction == DIRECTION_UP:
+                self.startAnimation(t, range(36, 39), 10, True)
+            elif self.direction == DIRECTION_DOWN:
+                self.startAnimation(t, range(0, 3), 10, True)
+            elif self.direction == DIRECTION_LEFT:
+                self.startAnimation(t, range(12, 15), 10, True)
+            elif self.direction == DIRECTION_RIGHT:
+                self.startAnimation(t, range(24, 27), 10, True)
+
     def update(self, t):
-        self.updatePhysics()
+        self.updatePhysics(t)
+        self.updateAnimation(t)
         hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
         if not hit:
             return
         if self.pushing:
             hit[0].push(self.direction)
         self.cancelPhysics()
+        self.updateAnimation(t)
 
 def enter():
     global playscreen

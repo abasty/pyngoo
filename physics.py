@@ -97,7 +97,7 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         self.state = self.STATE_NORMAL
         self.frames = PhysicsFrame()
 
-    def updateTarget(self):
+    def updateTarget(self, t):
         """This method computes new target given AI or key input
         It should be overridden in subclasses"""
         pass
@@ -135,10 +135,10 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
     def animationStopped(self):
         return self.frames.index == -1
 
-    def updatePhysics(self):
+    def updatePhysics(self, t):
         # get target if needed
         if self.position == self.target:
-            self.updateTarget()
+            self.updateTarget(t)
         # compute delta to target and velocity to apply
         # NOTE: this is a simple physics algo w/ only velocity applied to position
         # NOTE: More complex physics can be implemented here based on ramp
@@ -166,7 +166,7 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         self.rect = self.lastRect
         self.position = Vector2d(self.lastRect.x, self.lastRect.y)
         self.target = Vector2d(self.lastRect.x, self.lastRect.y)
-        self.direction = DIRECTION_NONE
+        #self.direction = DIRECTION_NONE
 
     def setState(self, state):
         self.state = state
