@@ -144,7 +144,7 @@ class Block(PhysicsSprite):
 
     def __init__(self, l, c):
 #        PhysicsSprite.__init__(self, l, c, 'glacon-animated.png', TRANSPARENCY_COLORKEY_AUTO, 8, 500.0)
-        PhysicsSprite.__init__(self, l, c, 'ball.png', TRANSPARENCY_ALPHA, 12, 500.0)
+        PhysicsSprite.__init__(self, l, c, 'ball.png', TRANSPARENCY_ALPHA, 40, 40, 500.0)
 
     def updateTarget(self):
         if self.direction == DIRECTION_NONE:
@@ -203,7 +203,7 @@ class Block(PhysicsSprite):
 class Border(PhysicsSprite):
     """The class to represent a border block"""
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'igloo.jpg', TRANSPARENCY_NONE, 1, 1.0)
+        PhysicsSprite.__init__(self, l, c, 'igloo.jpg', TRANSPARENCY_NONE, 40, 40, 1.0)
 
     def update(self, t):
         pass
@@ -214,7 +214,7 @@ class Diamond(PhysicsSprite):
     STATE_PUSHED = 2
 
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'gift.png', TRANSPARENCY_ALPHA, 1, 500.0)
+        PhysicsSprite.__init__(self, l, c, 'gift.png', TRANSPARENCY_ALPHA, 40, 40, 500.0)
 
     @classmethod
     def aligned(cls):
@@ -256,10 +256,39 @@ class Diamond(PhysicsSprite):
             self.direction = direction
             self.setState(self.STATE_PUSHED)
 
+class Monster(PhysicsSprite):
+    """The class to represent a diamond"""
+
+    STATE_PUSHED = 2
+
+    def __init__(self, l, c):
+        PhysicsSprite.__init__(self, l, c, 'gift.png', TRANSPARENCY_ALPHA, 40, 40, 500.0)
+
+    def updateTarget(self):
+        if self.direction == DIRECTION_NONE:
+            return
+        elif self.direction == DIRECTION_UP:
+            self.target.y -= self.rect.h
+        elif self.direction == DIRECTION_DOWN:
+            self.target.y += self.rect.h
+        elif self.direction == DIRECTION_LEFT:
+            self.target.x -= self.rect.w
+        elif self.direction == DIRECTION_RIGHT:
+            self.target.x += self.rect.w
+
+    def update(self, t):
+        if self.state == self.STATE_PUSHED:
+            self.updatePhysics()
+            hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
+            if len(hit) == 1:
+                return
+            self.cancelPhysics()
+            self.setState(self.STATE_NORMAL)
+
 class Pingoo(PhysicsSprite):
     """The pingoo/player class"""
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'santa.png', TRANSPARENCY_ALPHA, 1, 250.0)
+        PhysicsSprite.__init__(self, l, c, 'santa.png', TRANSPARENCY_ALPHA, 40, 40, 250.0)
         self.pushing = False
 
     def updateTarget(self):

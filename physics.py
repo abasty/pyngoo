@@ -6,7 +6,7 @@ from game import *
 # FIXME: Implement image cache = create an associative array between image name and image itself
 # FIXME: Do not load the image if the image is already available in the cache
 
-def load_image(name, colorkey, n = 1):
+def load_image(name, colorkey):
     fullname = os.path.join('media', name)
     try:
         image = pygame.image.load(fullname)
@@ -22,10 +22,7 @@ def load_image(name, colorkey, n = 1):
                 colorkey = image.get_at((0, 0))
             image.set_colorkey(colorkey, pygame.RLEACCEL)
 
-    r = image.get_rect()
-    r.w = r.w / n
-
-    return image, r
+    return image
 
 class Vector2d:
     """A class to manipulate 2d vectors such as position or speed"""
@@ -61,7 +58,7 @@ class Physics:
 
     t = 0
     dt = 20
-    
+
     @classmethod
     def pixelsPerSecondToSpeedUnit(self, pxBysec):
         return pxBysec * self.dt / 1000.0
@@ -73,7 +70,7 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
     """An object that implements simple 2d physics"""
     STATE_NORMAL = 0
 
-    def __init__(self, l, c, image, colorkey, n, velocityMaxInPixelsPerSeconds):
+    def __init__(self, l, c, image, colorkey, w, h, velocityMaxInPixelsPerSeconds):
         """
         Initialize a new PhysicsObject instance
         
@@ -82,10 +79,13 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         image -- name of an image file in the medi folder
         colorkey -- color key of the image (can be None, ALPHA, COLORKEY_AUTO)
         n -- How many sprite frames in the image file
+        w, h: width and height of base sprite
         velocityMaxInPixelsPerSeconds -- Maximum velocity of the object
         """
         pygame.sprite.DirtySprite.__init__(self)
-        self.image, self.rect = load_image(image, colorkey, n)
+        self.image = load_image(image, colorkey)
+        self.spritesPerLine = self.image.get_width() / w
+        self.rect = pygame.Rect(0, 0, w, h)
         self.source_rect = self.rect.copy()
         self.position = Vector2d(xorigin + c * self.rect.w, yorigin + l * self.rect.h)
         self.rect.move_ip(self.position.x, self.position.y)
@@ -103,7 +103,10 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         pass
 
     def setFrame(self, n):
-        self.source_rect.left = n * self.source_rect.w
+        l = n // self.spritesPerLine
+        c = n %  self.spritesPerLine
+        self.source_rect.left = c * self.source_rect.w
+        self.source_rect.top = l * self.source_rect.h
         self.dirty = 1
 
     def startAnimation(self, t, frames, rate, loop = False):
