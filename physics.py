@@ -64,7 +64,13 @@ class Physics:
         return pxBysec * self.dt / 1000.0
 
 class PhysicsFrame:
-    pass
+    def __init__(self):
+        self.seq = []
+        self.count = 0
+        self.index = -1
+        self.t = 0
+        self.dt = 0
+        self.loop = False
 
 class PhysicsSprite(pygame.sprite.DirtySprite):
     """An object that implements simple 2d physics"""
@@ -116,6 +122,9 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         self.frames.t = t
         self.frames.dt = 1000.0 / rate
         self.frames.loop = loop
+
+    def endAnimation(self):
+        self.frames.index = -1
 
     def updateAnimation(self, t):
         if self.frames.index < 0:

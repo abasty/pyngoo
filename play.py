@@ -291,7 +291,6 @@ class Pingoo(PhysicsSprite):
 #        PhysicsSprite.__init__(self, l, c, 'santa.png', TRANSPARENCY_ALPHA, 40, 40, 250.0)
         PhysicsSprite.__init__(self, l, c, 'monsters.png', TRANSPARENCY_COLORKEY_AUTO, 40, 40, 250.0)
         self.pushing = False
-        self.startAnimation(0, range(0, 3), 10, True)
 
     def updateTarget(self, t):
         if playscreen.ending:
@@ -336,15 +335,20 @@ class Pingoo(PhysicsSprite):
             self.direction = DIRECTION_NONE
 
         if _old != self.direction:
-            print _old, self.direction
             if self.direction == DIRECTION_UP:
-                self.startAnimation(t, range(36, 39), 10, True)
+                _frame = 36
             elif self.direction == DIRECTION_DOWN:
-                self.startAnimation(t, range(0, 3), 10, True)
+                _frame = 0
             elif self.direction == DIRECTION_LEFT:
-                self.startAnimation(t, range(12, 15), 10, True)
+                _frame = 12
             elif self.direction == DIRECTION_RIGHT:
-                self.startAnimation(t, range(24, 27), 10, True)
+                _frame = 24
+            else:
+                _frame = -1
+            if _frame >= 0:
+                self.startAnimation(t, range(_frame, _frame + 3), 8, True)
+            else:
+                self.endAnimation()
 
     def update(self, t):
         self.updatePhysics(t)
