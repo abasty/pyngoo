@@ -73,10 +73,8 @@ def draw():
         r = zones[selected].copy()
         r.left = 20
         r.width = game.size[0] - 2 * r.left
-        r.top -= r.height / 4
-        pygame.draw.rect(game.screen, 0xffffff, r, 4)
-        r.inflate(-4, -4)
         pygame.draw.rect(game.screen, 0x5b5ba0, r)
+        pygame.draw.rect(game.screen, 0xffffff, r, 4)
     for i in range(len(renderedText)):
         game.screen.blit(renderedText[i], zones[i].topleft)
 
