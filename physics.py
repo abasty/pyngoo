@@ -1,27 +1,5 @@
-import os
 import math
 from game import * #@UnusedWildImport
-
-# FIXME: Implement image cache = create an associative array between image name and image itself
-# FIXME: Do not load the image if the image is already available in the cache
-
-def load_image(name, colorkey):
-    fullname = os.path.join('media', name)
-    try:
-        image = pygame.image.load(fullname)
-    except pygame.error, message:
-        print 'Cannot load image:', name
-        raise SystemExit, message
-    if colorkey is TRANSPARENCY_ALPHA:
-        image = image.convert_alpha()
-    else:
-        image = image.convert()
-        if colorkey is not None:
-            if colorkey is TRANSPARENCY_COLORKEY_AUTO:
-                colorkey = image.get_at((0, 0))
-            image.set_colorkey(colorkey, pygame.RLEACCEL)
-
-    return image
 
 class Vector2d:
     """A class to manipulate 2d vectors such as position or speed"""

@@ -248,7 +248,7 @@ class Diamond(PhysicsSprite):
                 return
             self.cancelPhysics()
             self.setState(self.STATE_NORMAL)
-            a,r = self.aligned()
+            a, _u = self.aligned()
             playscreen.endTest(a)
                 
     def push(self, direction):
