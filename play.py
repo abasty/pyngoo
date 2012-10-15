@@ -289,7 +289,7 @@ class Pingoo(PhysicsSprite):
     """The pingoo/player class"""
     def __init__(self, l, c):
 #        PhysicsSprite.__init__(self, l, c, 'santa.png', TRANSPARENCY_ALPHA, 40, 40, 250.0)
-        PhysicsSprite.__init__(self, l, c, 'monsters.png', TRANSPARENCY_COLORKEY_AUTO, 40, 40, 250.0)
+        PhysicsSprite.__init__(self, l, c, 'santa2.png', TRANSPARENCY_COLORKEY_AUTO, 40, 40, 250.0)
         self.pushing = False
 
     def updateTarget(self, t):
@@ -336,13 +336,13 @@ class Pingoo(PhysicsSprite):
 
         if _old != self.direction:
             if self.direction == DIRECTION_UP:
-                _frame = 36
-            elif self.direction == DIRECTION_DOWN:
                 _frame = 0
+            elif self.direction == DIRECTION_DOWN:
+                _frame = 6
             elif self.direction == DIRECTION_LEFT:
-                _frame = 12
+                _frame = 9
             elif self.direction == DIRECTION_RIGHT:
-                _frame = 24
+                _frame = 3
             else:
                 _frame = -1
             if _frame >= 0:
