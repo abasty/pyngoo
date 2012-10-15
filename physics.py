@@ -86,7 +86,7 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
 
     def setFrame(self, n):
         l = n // self.spritesPerLine
-        c = n %  self.spritesPerLine
+        c = n % self.spritesPerLine
         self.source_rect.left = c * self.source_rect.w
         self.source_rect.top = l * self.source_rect.h
         self.dirty = 1
