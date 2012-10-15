@@ -2,6 +2,7 @@
 
 import random
 from pygame import Rect
+from game import *
 from physics import * #@UnusedWildImport
 
 class PlayScreen:
@@ -10,9 +11,6 @@ class PlayScreen:
     score = 0
 
     back = pygame.image.load("media/background.png").convert()
-
-    lmax = 13
-    cmax = 19
 
     limits = Rect(xorigin, yorigin, cmax * 40, lmax * 40)
     gamezone = limits.inflate(-40 * 2, -40 * 2)
@@ -23,18 +21,19 @@ class PlayScreen:
         random.seed(PlayScreen.level)
 
         self.labyrinth = pygame.sprite.LayeredDirty()
-        self.pingoo = Pingoo(self.lmax / 2, self.cmax / 2)
+        self.pingoo = Pingoo(lmax / 2, cmax / 2)
         self.player = pygame.sprite.LayeredDirty(self.pingoo)
         self.diamonds = pygame.sprite.LayeredDirty()
+        self.borders = pygame.sprite.LayeredDirty()
 
         # Labyrinth
         tableau = []
-        ligne0 = [ "b" ] * self.cmax
+        ligne0 = [ "b" ] * cmax
         tableau.append(ligne0)
-        for l in range(self.lmax / 2):
+        for l in range(lmax / 2):
             ligne0 = [ "b" ]
             ligne1 = [ "b" ]
-            for c in range(self.cmax / 2):
+            for c in range(cmax / 2):
                 r = random.choice(["xx..", "xx..", "x.x.", "x.x.", "x..."])
                 if c > 0:
                     ligne0.append(r[0])
@@ -46,28 +45,28 @@ class PlayScreen:
             if l > 0:
                 tableau.append(ligne0)
             tableau.append(ligne1)
-        ligne0 = [ "b" ] * self.cmax
+        ligne0 = [ "b" ] * cmax
         tableau.append(ligne0)
 
         # room for the player
-        tableau[self.lmax / 2][self.cmax / 2] = "."
+        tableau[lmax / 2][cmax / 2] = "."
 
         # create diamonds
         n = 0
         while n < 3:
-            l = random.randrange(0, self.lmax / 2 - 1) * 2 + 2
-            c = random.randrange(0, self.cmax / 2 - 1) * 2 + 2
+            l = random.randrange(0, lmax / 2 - 1) * 2 + 2
+            c = random.randrange(0, cmax / 2 - 1) * 2 + 2
             if tableau[l][c] == "X":
                 continue
             tableau[l][c] = "X"
             n += 1
 
         #define sprites
-        for l in range(self.lmax):
-            for c in range(self.cmax):
+        for l in range(lmax):
+            for c in range(cmax):
                 p = tableau[l][c]
                 if p is "b":
-                    Border(l, c).add(self.labyrinth)
+                    Border(l, c).add(self.labyrinth, self.borders)
                 if p is "x":
                     Block(l, c).add(self.labyrinth)
                 if p is "X":
@@ -93,7 +92,8 @@ class PlayScreen:
             pygame.mixer.music.load("media/jingle-bells.ogg")
             pygame.mixer.music.play(-1)
             self.ending = a
-
+            Border.setToBlinkBlink()
+            
 class CounterObject:
 
     image = pygame.image.load("media/numbers.png").convert_alpha()
@@ -200,13 +200,35 @@ class Block(PhysicsSprite):
             self.setState(self.STATE_JUST_PUSHED)
 
 class Border(PhysicsSprite):
+
+    STATE_BLINKBLINK = 1
+
     """The class to represent a border block"""
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'trees.png', TRANSPARENCY_COLORKEY_AUTO, 40, 40, 1.0)
+        PhysicsSprite.__init__(self, l, c, 'trees.png', TRANSPARENCY_COLORKEY_AUTO, 40, 40, 400.0)
         self.setFrame(random.randrange(16))
 
+    @classmethod
+    def setToBlinkBlink(cls):
+        for b in playscreen.borders:
+            b.setState(Border.STATE_BLINKBLINK)
+
+    def updateTarget(self, t):
+        if self.state == self.STATE_NORMAL:
+            return
+
+        l, c = self.getLC()
+        if c == 0 and l != 0:
+            self.target.y = self.position.y - self.rect.h
+        if l == 0 and c != cmax - 1:
+            self.target.x = self.position.x + self.rect.w
+        if c == cmax - 1 and l != lmax -1:
+            self.target.y = self.position.y + self.rect.h
+        if l == lmax - 1 and c != 0:
+            self.target.x = self.position.x - self.rect.w
+
     def update(self, t):
-        pass
+        self.updatePhysics(t)
 
 class Diamond(PhysicsSprite):
     """The class to represent a diamond"""

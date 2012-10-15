@@ -13,6 +13,9 @@ size = [ 800, 600 ]
 xorigin = 20
 yorigin = 60
 
+lmax = 13
+cmax = 19
+
 DIRECTION_NONE = 0
 DIRECTION_UP = 1
 DIRECTION_DOWN = 2

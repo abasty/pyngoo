@@ -79,6 +79,11 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         self.state = self.STATE_NORMAL
         self.frames = PhysicsFrame()
 
+    def getLC(self):
+        l = (self.position.y - yorigin) // self.rect.h
+        c = (self.position.x - xorigin) // self.rect.w
+        return l, c
+
     def updateTarget(self, t):
         """This method computes new target given AI or key input
         It should be overridden in subclasses"""
