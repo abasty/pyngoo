@@ -2,8 +2,7 @@
 
 import random
 from pygame import Rect
-from game import *
-from  physics import *
+from physics import * #@UnusedWildImport
 
 class PlayScreen:
 

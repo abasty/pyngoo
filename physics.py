@@ -1,7 +1,6 @@
 import os
 import math
-import pygame
-from game import *
+from game import * #@UnusedWildImport
 
 # FIXME: Implement image cache = create an associative array between image name and image itself
 # FIXME: Do not load the image if the image is already available in the cache
@@ -82,9 +81,8 @@ class PhysicsSprite(pygame.sprite.DirtySprite):
         
         l -- pseudo line (vertical coordinate) of the object
         c -- pseudo column (horizontal coordinate) of the object
-        image -- name of an image file in the medi folder
+        image -- name of an image file in the media folder, the image can contain many sprites
         colorkey -- color key of the image (can be None, ALPHA, COLORKEY_AUTO)
-        n -- How many sprite frames in the image file
         w, h: width and height of base sprite
         velocityMaxInPixelsPerSeconds -- Maximum velocity of the object
         """
