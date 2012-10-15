@@ -203,7 +203,8 @@ class Block(PhysicsSprite):
 class Border(PhysicsSprite):
     """The class to represent a border block"""
     def __init__(self, l, c):
-        PhysicsSprite.__init__(self, l, c, 'igloo.jpg', TRANSPARENCY_NONE, 40, 40, 1.0)
+        PhysicsSprite.__init__(self, l, c, 'trees.png', TRANSPARENCY_COLORKEY_AUTO, 40, 40, 1.0)
+        self.setFrame(random.randrange(16))
 
     def update(self, t):
         pass
