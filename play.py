@@ -346,7 +346,7 @@ class Pingoo(PhysicsSprite):
             else:
                 _frame = -1
             if _frame >= 0:
-                self.startAnimation(t, range(_frame, _frame + 3), 8, True)
+                self.startAnimation(t, range(_frame, _frame + 3), 14, True)
             else:
                 self.endAnimation()
 
