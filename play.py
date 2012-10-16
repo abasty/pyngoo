@@ -397,6 +397,8 @@ def event(event):
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_ESCAPE:
             return "Menu"
+        if event.key == pygame.K_n:
+            return "Next"
         elif event.key == pygame.K_p:
             pygame.image.save(screen, "pyngoo.png")
         return

@@ -44,6 +44,8 @@ while not done:
                 enterScreen(play)
             elif trans == "Menu":
                 enterScreen(mainmenu)
+            elif trans == "Next":
+                enterScreen(play)
             elif trans == "Setup":
                 enterScreen(setup)
             elif trans == "About":
