@@ -2,10 +2,14 @@
 
 import random
 from pygame import Rect
-from game import *
+from game import * #@UnusedWildImport
 from physics import * #@UnusedWildImport
 
 class PlayScreen:
+
+    STATE_PLAYING = 0
+    STATE_PAUSED = 1
+    STATE_WON = 2
 
     level = 0
     score = 0
@@ -17,14 +21,19 @@ class PlayScreen:
 
     def __init__(self):
 
+        self.state = PlayScreen.STATE_PLAYING
+
         PlayScreen.level += 1
         random.seed(PlayScreen.level)
 
-        self.labyrinth = pygame.sprite.LayeredDirty()
+        self.all = pygame.sprite.LayeredDirty()
+        self.labyrinth = pygame.sprite.Group()
+        self.player = pygame.sprite.Group()
+        self.diamonds = pygame.sprite.Group()
+        self.borders = pygame.sprite.Group()
+
         self.pingoo = Pingoo(lmax / 2, cmax / 2)
-        self.player = pygame.sprite.LayeredDirty(self.pingoo)
-        self.diamonds = pygame.sprite.LayeredDirty()
-        self.borders = pygame.sprite.LayeredDirty()
+        self.pingoo.add(self.all, self.player)
 
         # Labyrinth
         tableau = []
@@ -66,34 +75,66 @@ class PlayScreen:
             for c in range(cmax):
                 p = tableau[l][c]
                 if p is "b":
-                    Border(l, c).add(self.labyrinth, self.borders)
+                    Border(l, c).add(self.all, self.labyrinth, self.borders)
                 if p is "x":
-                    Block(l, c).add(self.labyrinth)
+                    Block(l, c).add(self.all, self.labyrinth)
                 if p is "X":
-                    Diamond(l, c).add(self.labyrinth, self.diamonds)
+                    Diamond(l, c).add(self.all, self.labyrinth, self.diamonds)
 
         # counters
         self.scoreDisplay = CounterObject(352, 32, 6)
         self.scoreDisplay.value = PlayScreen.score
-
+    
         Physics.t = pygame.time.get_ticks() + Physics.dt
 
         if inputMode == INPUT_MOUSE:
             pygame.mouse.set_pos(self.pingoo.rect.centerx, self.pingoo.rect.centery)
 
-        self.ending = None
-
     def __del__(self):
         PlayScreen.score = self.scoreDisplay.value
 
     def endTest(self, a):
+        global playscreen
         if a > 0:
             self.scoreDisplay.addValue(a * 5000, 25)
             pygame.mixer.music.load("media/jingle-bells.ogg")
             pygame.mixer.music.play(-1)
-            self.ending = a
+            self.state = PlayScreen.STATE_WON
+            playscreen.wonText.show()
             Border.setToBlinkBlink()
-            
+
+class Text(pygame.sprite.DirtySprite):
+
+    def __init__(self, message, color=white):
+        self._layer = 100
+        pygame.sprite.DirtySprite.__init__(self)
+        self.visible = False
+        self.setMessage(message, color)
+
+    def _render(self):
+        global playscreen
+        font = pygame.font.Font(None, 100)
+        self.image = font.render(self.message, True, self.color)
+        w, h = self.image.get_size()
+        x, y = playscreen.gamezone.centerx - w / 2, playscreen.gamezone.centery - h / 2
+        self.rect = Rect(x, y, w, h)
+        self.dirty = 1
+
+    def setMessage(self, message="PLACE HOLDER", color=white):
+        self.message = message
+        self.color = color
+        self._render()
+
+    def setColor(self, color=white):
+        self.color = color
+        self._render()
+
+    def show(self):
+        self.visible = True
+
+    def hide(self):
+        self.visible = False
+
 class CounterObject:
 
     image = pygame.image.load("media/numbers.png").convert_alpha()
@@ -310,12 +351,11 @@ class Monster(PhysicsSprite):
 class Pingoo(PhysicsSprite):
     """The pingoo/player class"""
     def __init__(self, l, c):
-#        PhysicsSprite.__init__(self, l, c, 'santa.png', TRANSPARENCY_ALPHA, 40, 40, 250.0)
         PhysicsSprite.__init__(self, l, c, 'santa2.png', TRANSPARENCY_COLORKEY_AUTO, 40, 40, 250.0)
         self.pushing = False
 
     def updateTarget(self, t):
-        if playscreen.ending:
+        if playscreen.state != PlayScreen.STATE_PLAYING:
             up = False
             down = False
             left = False
@@ -373,6 +413,7 @@ class Pingoo(PhysicsSprite):
                 self.endAnimation()
 
     def update(self, t):
+        global playscreen
         self.updatePhysics(t)
         self.updateAnimation(t)
         hit = pygame.sprite.spritecollide(self, playscreen.labyrinth, False)
@@ -386,6 +427,11 @@ class Pingoo(PhysicsSprite):
 def enter():
     global playscreen
     playscreen = PlayScreen()
+    # Messages
+    playscreen.pauseText = Text("Game is paused") 
+    playscreen.pauseText.add(playscreen.all)
+    playscreen.wonText = Text("Well Done !") 
+    playscreen.wonText.add(playscreen.all)
 
 def leave():
     global playscreen
@@ -394,11 +440,19 @@ def leave():
 
 # Event callback
 def event(event):
+    global playscreen
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_ESCAPE:
             return "Menu"
-        if event.key == pygame.K_n:
+        elif event.key == pygame.K_n:
             return "Next"
+        elif event.key == pygame.K_b:
+            if playscreen.state == PlayScreen.STATE_PLAYING:
+                playscreen.state = PlayScreen.STATE_PAUSED
+                playscreen.pauseText.show()
+            elif playscreen.state == PlayScreen.STATE_PAUSED:
+                playscreen.state = PlayScreen.STATE_PLAYING
+                playscreen.pauseText.hide()
         elif event.key == pygame.K_p:
             pygame.image.save(screen, "pyngoo.png")
         return
@@ -406,8 +460,9 @@ def event(event):
 # Draw callback
 def draw():
     global playscreen
-    playscreen.labyrinth.clear(screen, playscreen.back)
-    playscreen.player.clear(screen, playscreen.back)
+
+    # Clear stuff
+    playscreen.all.clear(screen, playscreen.back)
 
     # Run physics
     t = pygame.time.get_ticks()
@@ -416,17 +471,13 @@ def draw():
         playscreen.labyrinth.update(t)
         Physics.t += Physics.dt
 
-    _res = playscreen.labyrinth.draw(screen)
-    _res = _res + playscreen.player.draw(screen)
+    # Manage won state message color
+    if playscreen.state == PlayScreen.STATE_WON:
+        playscreen.wonText.setColor([random.randrange(256), random.randrange(256), random.randrange(256)])
 
-    if playscreen.ending:
-        font = pygame.font.Font(None, 100)
-        img = font.render("Well Done !", True, [random.randrange(256), random.randrange(256), random.randrange(256)])
-        w, h = img.get_size()
-        screen.blit(img, [ playscreen.gamezone.centerx - w / 2, playscreen.gamezone.centery - h / 2 ])
-        _res += [ Rect(playscreen.gamezone.centerx - w / 2, playscreen.gamezone.centery - h / 2, w, h) ]
-
-    # draw scores
+    # Draw stuff
+    _res = playscreen.all.draw(screen)
+    # Draw score
     _res += playscreen.scoreDisplay.draw()
 
     return _res
