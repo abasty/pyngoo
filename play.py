@@ -100,8 +100,28 @@ class PlayScreen:
             pygame.mixer.music.load("media/jingle-bells.ogg")
             pygame.mixer.music.play(-1)
             self.state = PlayScreen.STATE_WON
+            playscreen.window.show()
             playscreen.wonText.show()
             Border.setToBlinkBlink()
+
+class Window(pygame.sprite.DirtySprite):
+
+    def __init__(self, w, h, color=[0, 0, 0]):
+        global playscreen
+        self._layer = 99
+        pygame.sprite.DirtySprite.__init__(self)
+        self.visible = False
+        self.image = pygame.Surface((w, h))
+        self.image.fill(color)
+        self.image.set_alpha(128)
+        x, y = playscreen.gamezone.centerx - w / 2, playscreen.gamezone.centery - h / 2
+        self.rect = Rect(x, y, w, h)
+
+    def show(self):
+        self.visible = True
+
+    def hide(self):
+        self.visible = False
 
 class Text(pygame.sprite.DirtySprite):
 
@@ -247,7 +267,8 @@ class Border(PhysicsSprite):
     """The class to represent a border block"""
     def __init__(self, l, c):
         PhysicsSprite.__init__(self, l, c, 'trees.png', TRANSPARENCY_COLORKEY_AUTO, 40, 40, 400.0)
-        self.setFrame(random.randrange(16))
+#        self.setFrame(random.randrange(16))
+        self.setFrame(random.choice([0, 1, 2, 3, 7, 8, 9, 10, 12]))
 
     @classmethod
     def setToBlinkBlink(cls):
@@ -428,7 +449,9 @@ def enter():
     global playscreen
     playscreen = PlayScreen()
     # Messages
-    playscreen.pauseText = Text("Game is paused") 
+    playscreen.window = Window(600, 400)
+    playscreen.window.add(playscreen.all)
+    playscreen.pauseText = Text("Game is paused")
     playscreen.pauseText.add(playscreen.all)
     playscreen.wonText = Text("Well Done !") 
     playscreen.wonText.add(playscreen.all)
@@ -449,9 +472,11 @@ def event(event):
         elif event.key == pygame.K_b:
             if playscreen.state == PlayScreen.STATE_PLAYING:
                 playscreen.state = PlayScreen.STATE_PAUSED
+                playscreen.window.show()
                 playscreen.pauseText.show()
             elif playscreen.state == PlayScreen.STATE_PAUSED:
                 playscreen.state = PlayScreen.STATE_PLAYING
+                playscreen.window.hide()
                 playscreen.pauseText.hide()
         elif event.key == pygame.K_p:
             pygame.image.save(screen, "pyngoo.png")
