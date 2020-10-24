@@ -74,17 +74,17 @@ class PlayScreen:
         for l in range(lmax):
             for c in range(cmax):
                 p = tableau[l][c]
-                if p is "b":
+                if p == "b":
                     Border(l, c).add(self.all, self.labyrinth, self.borders)
-                if p is "x":
+                if p == "x":
                     Block(l, c).add(self.all, self.labyrinth)
-                if p is "X":
+                if p == "X":
                     Diamond(l, c).add(self.all, self.labyrinth, self.diamonds)
 
         # counters
         self.scoreDisplay = CounterObject(352, 32, 6)
         self.scoreDisplay.value = PlayScreen.score
-    
+
         Physics.t = pygame.time.get_ticks() + Physics.dt
 
         if inputMode == INPUT_MOUSE:
@@ -334,7 +334,7 @@ class Diamond(PhysicsSprite):
             self.setState(self.STATE_NORMAL)
             a, _u = self.aligned()
             playscreen.endTest(a)
-                
+
     def push(self, direction):
         if self.state == self.STATE_NORMAL:
             self.direction = direction
@@ -453,7 +453,7 @@ def enter():
     playscreen.window.add(playscreen.all)
     playscreen.pauseText = Text("Game is paused")
     playscreen.pauseText.add(playscreen.all)
-    playscreen.wonText = Text("Well Done !") 
+    playscreen.wonText = Text("Well Done !")
     playscreen.wonText.add(playscreen.all)
 
 def leave():
