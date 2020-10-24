@@ -2,12 +2,12 @@ import pygame
 import os
 
 # Define the colors we will use in RGB format
-white = [255,255,255]
+white = [255, 255, 255]
 
 pi = 3.141592653
 
 # Set the height and width of the game.screen
-size = [ 800, 600 ]
+size = [800, 600]
 
 # Decal on play screen
 xorigin = 20
@@ -22,7 +22,7 @@ DIRECTION_DOWN = 2
 DIRECTION_LEFT = 3
 DIRECTION_RIGHT = 4
 
-#screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+# screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 screen = pygame.display.set_mode(size)
 
 pygame.display.set_caption("PyGame Example - Alain Basty")
@@ -37,7 +37,7 @@ INPUT_KEYBOARD = 1
 
 inputMode = INPUT_KEYBOARD
 
-_image_cache = { }
+_image_cache = {}
 
 def load_image(name, colorkey):
     fullname = os.path.join('media', name)
@@ -65,4 +65,4 @@ def load_image(name, colorkey):
     return image
 
 def destroy_image_cache():
-    _image_cache = { }
+    _image_cache = {}

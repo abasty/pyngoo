@@ -4,9 +4,9 @@ import pygame
 import game
 
 # Global Declarations
-menu = [ "Play", "Setup", "About", "Quit" ]
-zones = [ ]
-renderedText = [ ]
+menu = ["Play", "Setup", "About", "Quit"]
+zones = []
+renderedText = []
 selected = -1
 fontSize = 100
 
@@ -38,7 +38,7 @@ def leave():
 # Event callback
 def event(event):
     global selected
-    
+
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_ESCAPE:
             return "Quit"

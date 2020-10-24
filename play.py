@@ -37,11 +37,11 @@ class PlayScreen:
 
         # Labyrinth
         tableau = []
-        ligne0 = [ "b" ] * cmax
+        ligne0 = ["b"] * cmax
         tableau.append(ligne0)
         for l in range(lmax / 2):
-            ligne0 = [ "b" ]
-            ligne1 = [ "b" ]
+            ligne0 = ["b"]
+            ligne1 = ["b"]
             for c in range(cmax / 2):
                 r = random.choice(["xx..", "xx..", "x.x.", "x.x.", "x..."])
                 if c > 0:
@@ -54,7 +54,7 @@ class PlayScreen:
             if l > 0:
                 tableau.append(ligne0)
             tableau.append(ligne1)
-        ligne0 = [ "b" ] * cmax
+        ligne0 = ["b"] * cmax
         tableau.append(ligne0)
 
         # room for the player
@@ -190,7 +190,7 @@ class CounterObject:
             d = n % 10
             screen.blit(self.image, [self.x + c * self.fw, self.y], Rect(0, d * self.fh, self.image.get_width(), self.fh))
             n = n // 10
-        return [ self.rect ]
+        return [self.rect]
 
 class Block(PhysicsSprite):
     """The class to represent a block"""
